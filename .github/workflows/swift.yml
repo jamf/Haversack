@@ -1,0 +1,39 @@
+# SPDX-License-Identifier: MIT
+# Copyright 2023, Jamf
+
+name: UnitTests
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  Test-on-macOS:
+    runs-on: macos-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Run macOS tests (including integration)
+      run: swift test
+
+  Test-on-all-others:
+    runs-on: macos-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Run iOS tests
+      run: xcodebuild test -scheme Haversack-Package -destination 'platform=iOS Simulator,name=iPhone 14'
+    - name: Run tvOS tests
+      run: xcodebuild test -scheme Haversack-Package -destination 'platform=tvOS Simulator,name=Apple TV 4K (3rd generation)'
+    - name: Run watchOS tests
+      run: xcodebuild test -scheme Haversack-Package -destination 'platform=watchOS Simulator,name=Apple Watch Series 8 (41mm)'
+
+  SwiftLint:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: GitHub Action for SwiftLint
+      uses: norio-nomura/action-swiftlint@3.2.1

@@ -40,16 +40,16 @@ public class KeychainFile {
         let status = withUnsafeMutablePointer(to: &searchList) {
             SecKeychainCopyDomainSearchList(.system, UnsafeMutablePointer($0))
         }
-        
+
         guard status == errSecSuccess else {
             // attempt to use traditional path, may fail later
             return KeychainFile(at: legacySystemKeychainPath)
         }
-        
+
         guard let searchList = searchList as? [SecKeychain], let systemKeychain = searchList.first else {
             return KeychainFile(at: legacySystemKeychainPath)
         }
-        
+
         return KeychainFile(reference: systemKeychain)
     }()
 
@@ -71,27 +71,27 @@ public class KeychainFile {
         self.path = (filePath as NSString).standardizingPath
         self.passwordProvider = passwordProvider
     }
-    
+
     /// Create an instance from an existing keychain reference
     /// - Parameters:
     ///   - reference: A reference to a `SecKeychain`.
     init(reference: SecKeychain) {
         passwordProvider = nil
         self.reference = reference
-        
+
         var pathLength = UInt32(PATH_MAX)
         let pathName = UnsafeMutablePointer<CChar>.allocate(capacity: Int(pathLength))
         let status = withUnsafeMutablePointer(to: &pathLength) { pathLength in
             SecKeychainGetPath(reference, pathLength, pathName)
         }
-        
+
         if status == errSecSuccess {
             path = FileManager().string(withFileSystemRepresentation: pathName, length: Int(pathLength))
         } else {
             // should never happen
             path = ""
         }
-        
+
         pathName.deallocate()
     }
 

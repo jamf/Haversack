@@ -31,10 +31,27 @@ public class KeychainFile {
     public static let systemRootCertificates = KeychainFile(at: rootCertificatesKeychainPath)
 
     /// The path to the system keychain.
-    static let systemKeychainPath = "/Library/Keychains/System.keychain"
+    static let systemKeychainPath = system.path
 
     /// An instance of ``KeychainFile`` that points at the system keychain
-    public static let system = KeychainFile(at: systemKeychainPath)
+    public static let system: KeychainFile = {
+        let legacySystemKeychainPath = "/Library/Keychains/System.keychain"
+        var searchList: CFArray?
+        let status = withUnsafeMutablePointer(to: &searchList) {
+            SecKeychainCopyDomainSearchList(.system, UnsafeMutablePointer($0))
+        }
+
+        guard status == errSecSuccess else {
+            // attempt to use traditional path, may fail later
+            return KeychainFile(at: legacySystemKeychainPath)
+        }
+
+        guard let searchList = searchList as? [SecKeychain], let systemKeychain = searchList.first else {
+            return KeychainFile(at: legacySystemKeychainPath)
+        }
+
+        return KeychainFile(reference: systemKeychain)
+    }()
 
     /// The full path to the keychain file.
     public let path: FilePath
@@ -53,6 +70,29 @@ public class KeychainFile {
     public init(at filePath: FilePath, passwordProvider: KeychainPasswordProvider? = nil) {
         self.path = (filePath as NSString).standardizingPath
         self.passwordProvider = passwordProvider
+    }
+
+    /// Create an instance from an existing keychain reference
+    /// - Parameters:
+    ///   - reference: A reference to a `SecKeychain`.
+    init(reference: SecKeychain) {
+        passwordProvider = nil
+        self.reference = reference
+
+        var pathLength = UInt32(PATH_MAX)
+        let pathName = UnsafeMutablePointer<CChar>.allocate(capacity: Int(pathLength))
+        let status = withUnsafeMutablePointer(to: &pathLength) { pathLength in
+            SecKeychainGetPath(reference, pathLength, pathName)
+        }
+
+        if status == errSecSuccess {
+            path = FileManager().string(withFileSystemRepresentation: pathName, length: Int(pathLength))
+        } else {
+            // should never happen
+            path = ""
+        }
+
+        pathName.deallocate()
     }
 
     /// Try to open and unlock the keychain file, or create the keychain if it does not yet exist.

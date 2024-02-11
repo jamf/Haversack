@@ -23,11 +23,15 @@ let package = Package(
         .package(url: "https://github.com/apple/swift-docc-plugin", from: "1.3.0")
     ],
     targets: [
-        .target(name: "Haversack", dependencies: [
-                    .product(name: "OrderedCollections", package: "swift-collections")]),
+        .target(name: "Haversack",
+				dependencies: [
+                    .product(name: "OrderedCollections", package: "swift-collections")
+				],
+				resources: [.process("Resources/")]),
         .target(name: "HaversackCryptoKit", dependencies: ["Haversack"]),
         .target(name: "HaversackMock", dependencies: ["Haversack"]),
-        .testTarget(name: "HaversackTests", dependencies: ["HaversackMock"],
+        .testTarget(name: "HaversackTests",
+                    dependencies: ["HaversackMock"],
                     resources: [.copy("TestResources/")])
     ]
 )

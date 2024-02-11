@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// Copyright 2024, Jamf
+// Copyright 2023, Jamf
 
 import Foundation
 import Haversack

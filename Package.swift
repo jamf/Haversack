@@ -1,6 +1,6 @@
 // swift-tools-version:5.9
 // SPDX-License-Identifier: MIT
-// Copyright 2024, Jamf
+// Copyright 2023, Jamf
 
 import PackageDescription
 

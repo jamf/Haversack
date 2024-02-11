@@ -1,16 +1,12 @@
-//
-//  HaversackAsyncAwaitTests.swift
-//  
-//
-//  Created by Jacob Hearst on 9/30/22.
-//
+// SPDX-License-Identifier: MIT
+// Copyright 2024, Jamf
 
 import Foundation
 import Haversack
 import HaversackMock
 import XCTest
 
-@available(macOS 10.15.0, iOS 13.0.0, tvOS 13.0.0, watchOS 6.0, *)
+@available(macOS 10.15.0, iOS 13.0.0, tvOS 13.0.0, watchOS 6.0, visionOS 1.0, *)
 final class HaversackAsyncAwaitTests: XCTestCase {
     var haversack: Haversack!
     var strategy: HaversackEphemeralStrategy!

@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: MIT
-# Copyright 2023, Jamf
+# Copyright 2024, Jamf
 
 name: UnitTests
 
@@ -14,7 +14,7 @@ jobs:
     runs-on: macos-latest
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Run macOS tests (including integration)
       run: swift test
 
@@ -22,7 +22,7 @@ jobs:
     runs-on: macos-latest
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Run iOS tests
       run: xcodebuild test -scheme Haversack-Package -destination 'platform=iOS Simulator,name=iPhone 14'
     - name: Run tvOS tests
@@ -34,6 +34,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: GitHub Action for SwiftLint
       uses: norio-nomura/action-swiftlint@3.2.1

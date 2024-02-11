@@ -11,7 +11,7 @@ on:
 
 jobs:
   Test-on-macOS:
-    runs-on: macos-latest
+    runs-on: macos-14
 
     steps:
     - uses: actions/checkout@v4
@@ -19,7 +19,7 @@ jobs:
       run: swift test
 
   Test-on-all-others:
-    runs-on: macos-latest
+    runs-on: macos-14
 
     steps:
     - uses: actions/checkout@v4

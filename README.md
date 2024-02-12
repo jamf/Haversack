@@ -3,7 +3,7 @@
 
 # Haversack: Swift library for keychain access
 
-A Swift library for interacting with the Keychain on all Apple devices.  Supports macOS, iOS/iPadOS, tvOS, and watchOS.
+A Swift library for interacting with the Keychain on all Apple devices.  Supports macOS, iOS/iPadOS, tvOS, visionOS, and watchOS.
 
 ## Goal
 
@@ -130,12 +130,13 @@ Before submitting your pull request, please do the following:
 
 - If you are adding new commands or features, they should include unit tests.  If you are changing functionality, update the tests or add new tests as needed.
 - Verify all unit tests pass on all four supported operating systems.  There are two ways to do this:
-	1. In Xcode you can switch destinations to each of the following: "My Mac", any iOS Simulator, any tvOS Simulator, and any watchOS Simulator.  Run the unit tests for each of the destinations.
-	2. Four command line invocations:
+	1. In Xcode you can switch destinations to each of the following: "My Mac", any iOS Simulator, any tvOS Simulator, any visionOS Simulator, and any watchOS Simulator.  Run the unit tests for each of the destinations.
+	2. Five command line invocations:
 		- `swift test` to verify macOS functionality.
 		- `xcodebuild test -scheme Haversack-Package -destination 'platform=iOS Simulator,name=iPhone 14'` to verify iOS functionality.
 		- `xcodebuild test -scheme Haversack-Package -destination 'platform=tvOS Simulator,name=Apple TV 4K (3rd generation)'` to verify tvOS functionality.
-		- `xcodebuild test -scheme Haversack-Package -destination 'platform=watchOS Simulator,name=Apple Watch Series 8 (41mm)` to verify watchOS functionality.
+		- `xcodebuild test -scheme Haversack-Package -destination 'platform=watchOS Simulator,name=Apple Watch Series 9 (41mm)'` to verify watchOS functionality.
+        - `xcodebuild test -scheme Haversack-Package -destination 'platform=visionOS Simulator,name=Apple Vision Pro'` to verify visionOS functionality.
 - Run [SwiftLint](https://github.com/realm/SwiftLint) on the code.  Fix any warnings or errors that appear.
 - Add a note to the CHANGELOG describing what you changed.
 - If your pull request is related to an issue, add a link to the issue in the description.

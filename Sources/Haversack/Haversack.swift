@@ -371,8 +371,8 @@ public struct Haversack {
 
     /// Synchronously delete an item from the keychain that was previously retrieved from the keychain.
     ///
-    /// If the item does not include a `reference` previously retrieved from the keychain: on iOS/tvOS/watchOS all items
-    /// matching the item metadata will be deleted, while on macOS only the first matching item will be deleted.
+    /// If the item does not include a `reference` previously retrieved from the keychain: on iOS/tvOS/visionOS/watchOS
+	/// all items matching the item metadata will be deleted, while on macOS only the first matching item will be deleted.
     /// - Parameter item: The item retrieved from the keychain.
     /// - Parameter treatNotFoundAsSuccess: If true, no error is thrown when the query does not
     /// find an item to delete; default is true.
@@ -385,8 +385,8 @@ public struct Haversack {
 
     /// Aynchronously delete an item from the keychain that was previously retrieved from the keychain.
     ///
-    /// If the item does not include a `reference` previously retrieved from the keychain: on iOS/tvOS/watchOS all items
-    /// matching the item metadata will be deleted, while on macOS only the first matching item will be deleted.
+    /// If the item does not include a `reference` previously retrieved from the keychain: on iOS/tvOS/visionOS/watchOS
+	/// all items matching the item metadata will be deleted, while on macOS only the first matching item will be deleted.
     /// - Parameters:
     ///   - item: The item retrieved from the keychain.
     ///   - treatNotFoundAsSuccess: If true, no error is thrown when the query does not find an

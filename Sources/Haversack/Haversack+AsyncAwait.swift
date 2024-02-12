@@ -3,7 +3,7 @@
 
 import Foundation
 
-@available(macOS 10.15.0, iOS 13.0.0, tvOS 13.0.0, watchOS 6.0, *)
+@available(macOS 10.15.0, iOS 13.0.0, tvOS 13.0.0, watchOS 6.0, visionOS 1.0, *)
 extension Haversack {
     /// This is equivalent to calling ``first(where:completionQueue:completion:)`` but using async-await syntax.
     public func first<T: KeychainQuerying>(where query: T) async throws -> T.Entity {

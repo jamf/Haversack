@@ -1,6 +1,6 @@
 # ``Haversack``
 
-A type-safe fluent interface for the keychain on macOS, iOS/iPadOS, tvOS, and watchOS.
+A type-safe fluent interface for the keychain on macOS, iOS/iPadOS, tvOS, visionOS, and watchOS.
 
 ## Overview
 

@@ -7,6 +7,9 @@ import Haversack
 /// A strategy which uses a simple dictionary to search, store, and delete data instead of hitting an actual keychain.
 ///
 /// The keys of the ``mockData`` dictionary are calculated from the queries that are sent through Haversack.
+/// 
+/// You can also use either the untyped ``subscript(_:)-7weqp`` or the typed ``subscript(_:)-6jjzx``
+/// accessors to avoid having to hold onto the calculated keys.
 open class HaversackEphemeralStrategy: HaversackStrategy {
     /// The dictionary that is used for storage of keychain items
     ///
@@ -37,6 +40,25 @@ open class HaversackEphemeralStrategy: HaversackStrategy {
 
     /// If the strategy has any problems it will throw `NSError` with this domain.
     public static let errorDomain = "haversack.unit_testing.mock"
+
+    /// Untyped access to ``mockData`` values via keychain queries instead of `String`s
+    /// - Parameter query: The keychain query to read/write to
+    /// - Returns: The ``mockData`` value for the `query`
+    public subscript(_ query: any KeychainQuerying) -> Any? {
+        get {
+            mockData[key(for: query.query)]
+        }
+        set {
+            mockData[key(for: query.query)] = newValue
+        }
+    }
+
+    /// Typed access to ``mockData`` values via keychain queries instead of `String`s
+    /// - Parameter query: The keychain query to read the value for
+    /// - Returns: The ``mockData`` value for the `query`
+    public subscript<T>(_ query: any KeychainQuerying) -> T? {
+        self[query] as? T
+    }
 
     /// Looks through the ``mockData`` dictionary for an entry matching the query.
     /// - Parameter querying: An instance of a type that conforms to the `KeychainQuerying` protocol.

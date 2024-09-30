@@ -64,4 +64,33 @@ final class EphemeralStrategyTests: XCTestCase {
         XCTAssertNotNil(mock.certificateImportConfiguration)
     }
     #endif
+
+    func testUntypedSubscript() throws {
+        // Given
+        let mock = HaversackEphemeralStrategy()
+        let query = GenericPasswordQuery()
+        let mockValue = "test"
+
+        // When
+        mock[query] = mockValue
+        let storedAny = mock[query]
+
+        // Then
+        let storedString = try XCTUnwrap(storedAny as? String)
+        XCTAssertEqual(storedString, mockValue)
+    }
+
+    func testTypedSubscript() {
+        // Given
+        let mock = HaversackEphemeralStrategy()
+        let query = GenericPasswordQuery()
+        let mockValue = "test"
+
+        // When
+        mock[query] = mockValue
+        let storedString: String? = mock[query]
+
+        // Then
+        XCTAssertEqual(storedString, mockValue)
+    }
 }

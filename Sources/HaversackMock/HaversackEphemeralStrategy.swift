@@ -4,12 +4,9 @@
 import Foundation
 import Haversack
 
-/// A strategy which uses a simple dictionary to search, store, and delete data instead of hitting an actual keychain.
+/// A strategy which uses a simple dictionary to import, export, search, store, and delete data instead of hitting an actual keychain.
 ///
 /// The keys of the ``mockData`` dictionary are calculated from the queries that are sent through Haversack.
-/// 
-/// You can also use either the untyped ``subscript(_:)-7weqp`` or the typed ``subscript(_:)-6jjzx``
-/// accessors to avoid having to hold onto the calculated keys.
 open class HaversackEphemeralStrategy: HaversackStrategy {
     /// The dictionary that is used for storage of keychain items
     ///
@@ -40,25 +37,6 @@ open class HaversackEphemeralStrategy: HaversackStrategy {
 
     /// If the strategy has any problems it will throw `NSError` with this domain.
     public static let errorDomain = "haversack.unit_testing.mock"
-
-    /// Untyped access to ``mockData`` values via keychain queries instead of `String`s
-    /// - Parameter query: The keychain query to read/write to
-    /// - Returns: The ``mockData`` value for the `query`
-    public subscript(_ query: any KeychainQuerying) -> Any? {
-        get {
-            mockData[key(for: query.query)]
-        }
-        set {
-            mockData[key(for: query.query)] = newValue
-        }
-    }
-
-    /// Typed access to ``mockData`` values via keychain queries instead of `String`s
-    /// - Parameter query: The keychain query to read the value for
-    /// - Returns: The ``mockData`` value for the `query`
-    public subscript<T>(_ query: any KeychainQuerying) -> T? {
-        self[query] as? T
-    }
 
     /// Looks through the ``mockData`` dictionary for an entry matching the query.
     /// - Parameter querying: An instance of a type that conforms to the `KeychainQuerying` protocol.
@@ -117,6 +95,7 @@ open class HaversackEphemeralStrategy: HaversackStrategy {
     /// - Parameter query: An instance of a `Haversack/SecurityFrameworkQuery`.
     /// - Returns: Returns the private key of a new cryptographic key pair.
     /// - Throws: An `NSError` object if the key cannot be found. Prior to throwing, also stores the query in the ``mockData`` for future inspection.
+    /// - Important: The mock value must be an instance of `SecKey`
     override open func generateKey(_ query: SecurityFrameworkQuery) throws -> SecKey {
         let theKey = key(for: query)
 
@@ -159,7 +138,11 @@ open class HaversackEphemeralStrategy: HaversackStrategy {
     /// - Returns: The items in ``mockImportedEntities``
     /// - Throws: Either ``mockImportError`` or an `NSError` with the ``errorDomain`` domain if the
     /// items in ``mockImportedEntities`` don't match the type of the `EntityType` of the `configuration` parameter.
-    override open func importItems<EntityType: KeychainImportable>(_ items: Data, configuration: KeychainImportConfig<EntityType>, importKeychain: SecKeychain? = nil) throws -> [EntityType] {
+    override open func importItems<EntityType: KeychainImportable>(
+        _ items: Data,
+        configuration: KeychainImportConfig<EntityType>,
+        importKeychain: SecKeychain? = nil
+    ) throws -> [EntityType] {
         if let keyImportConfig = configuration as? KeychainImportConfig<KeyEntity> {
             keyImportConfiguration = keyImportConfig
         } else if let certificateImportConfig = configuration as? KeychainImportConfig<CertificateEntity> {

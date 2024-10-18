@@ -25,7 +25,7 @@ public struct Haversack {
     /// - Returns: Something conforming to the ``KeychainStorable`` protocol, based on the query type.
     public func first<T: KeychainQuerying>(where query: T) throws -> T.Entity {
         return try configuration.serialQueue.sync {
-            let localQuery = try precheckSearch(query, singleItem: true)
+            let localQuery = try makeSearchQuery(query, singleItem: true)
 
             return try self.configuration.strategy.searchForOne(localQuery)
         }
@@ -43,7 +43,7 @@ public struct Haversack {
         configuration.serialQueue.async {
             let result: Result<T.Entity, Error>
             do {
-                let localQuery = try precheckSearch(query, singleItem: true)
+                let localQuery = try makeSearchQuery(query, singleItem: true)
 
                 let entity = try self.configuration.strategy.searchForOne(localQuery)
                 result = .success(entity)
@@ -61,8 +61,8 @@ public struct Haversack {
     /// - Throws: A ``HaversackError`` if the query returns no items or any errors occur.
     /// - Returns: An array of items conforming to the ``KeychainStorable`` protocol, based on the query type.
     public func search<T: KeychainQuerying>(where query: T) throws -> [T.Entity] {
-        return try configuration.serialQueue.sync {
-            let localQuery = try precheckSearch(query)
+        try configuration.serialQueue.sync {
+            let localQuery = try makeSearchQuery(query, singleItem: false)
 
             return try self.configuration.strategy.search(localQuery)
         }
@@ -80,7 +80,7 @@ public struct Haversack {
         configuration.serialQueue.async {
             let result: Result<[T.Entity], Error>
             do {
-                let localQuery = try precheckSearch(query)
+                let localQuery = try makeSearchQuery(query, singleItem: true)
 
                 let entities = try self.configuration.strategy.search(localQuery)
                 result = .success(entities)
@@ -104,8 +104,8 @@ public struct Haversack {
     /// - Returns: The original `item`.
     @discardableResult
     public func save<T: KeychainStorable>(_ item: T, itemSecurity: ItemSecurity, updateExisting: Bool) throws -> T {
-        return try configuration.serialQueue.sync {
-            return try unsynchronizedSave(item, itemSecurity: itemSecurity, updateExisting: updateExisting)
+        try configuration.serialQueue.sync {
+            try unsynchronizedSave(item, itemSecurity: itemSecurity, updateExisting: updateExisting)
         }
     }
 
@@ -135,6 +135,138 @@ public struct Haversack {
             call(completionHandler: completion, onQueue: completionQueue, with: result)
         }
     }
+
+    // MARK: - Deletion
+
+    /// Synchronously delete an item from the keychain that was previously retrieved from the keychain.
+    ///
+    /// If the item does not include a `reference` previously retrieved from the keychain: on iOS/tvOS/visionOS/watchOS
+    /// all items matching the item metadata will be deleted, while on macOS only the first matching item will be deleted.
+    /// - Parameter item: The item retrieved from the keychain.
+    /// - Parameter treatNotFoundAsSuccess: If true, no error is thrown when the query does not
+    /// find an item to delete; default is true.
+    /// - Throws: A ``HaversackError`` object if any errors occur.
+    public func delete<T: KeychainStorable>(_ item: T, treatNotFoundAsSuccess: Bool = true) throws {
+        try configuration.serialQueue.sync {
+            try self.unsynchronizedDelete(item, treatNotFoundAsSuccess: treatNotFoundAsSuccess)
+        }
+    }
+
+    /// Aynchronously delete an item from the keychain that was previously retrieved from the keychain.
+    ///
+    /// If the item does not include a `reference` previously retrieved from the keychain: on iOS/tvOS/visionOS/watchOS
+    /// all items matching the item metadata will be deleted, while on macOS only the first matching item will be deleted.
+    /// - Parameters:
+    ///   - item: The item retrieved from the keychain.
+    ///   - treatNotFoundAsSuccess: If true, no error is thrown when the query does not find an
+    ///   item to delete; default is true.
+    ///   - completionQueue: The `completion` function will be called on this queue if given, or
+    ///   the configuration's strategy's `serialQueue` if this is `nil`.
+    ///   - completion: A function/block to be called when the delete operation is completed.
+    ///   - error: If an error occurs during the delete operation it will be given to the completion
+    ///   block; a `nil` represents no error.
+    public func delete<T: KeychainStorable>(_ item: T, treatNotFoundAsSuccess: Bool = true,
+                                            completionQueue: OperationQueue? = nil,
+                                            completion: @escaping (_ error: Error?) -> Void) {
+        configuration.serialQueue.async {
+            let result: Error?
+
+            do {
+                try self.unsynchronizedDelete(item, treatNotFoundAsSuccess: treatNotFoundAsSuccess)
+                result = nil
+            } catch {
+                result = error
+            }
+
+            if let actualQueue = completionQueue {
+                actualQueue.addOperation {
+                    completion(result)
+                }
+            } else {
+                completion(result)
+            }
+        }
+    }
+
+    /// Synchronously delete one or more items from the keychain based on a search query.
+    /// - Parameter query: A Haversack query item
+    /// - Parameter treatNotFoundAsSuccess: If true, no error is thrown when the query does not
+    /// find an item to delete; default is true.
+    /// - Throws: A ``HaversackError`` object if any errors occur.
+    public func delete<T: KeychainQuerying>(where query: T, treatNotFoundAsSuccess: Bool = true) throws {
+        try configuration.serialQueue.sync {
+            let localQuery = try makeDeleteQuery(query)
+            try self.configuration.strategy.delete(localQuery.query, treatNotFoundAsSuccess: treatNotFoundAsSuccess)
+        }
+    }
+
+    /// Asynchronously delete one or more items from the keychain based on a search query.
+    /// - Parameters:
+    ///   - query: A Haversack search query.
+    ///   - treatNotFoundAsSuccess: If true, no error is thrown when the query does not find
+    ///   an item to delete; default is true.
+    ///   - completionQueue: The `completion` function will be called on this queue if given, or
+    ///   the configuration's strategy's `serialQueue` if this is `nil`.
+    ///   - completion: A function/block to be called when the delete operation is completed.
+    ///   - error: If an error occurs during the delete operation it will be given to the completion
+    ///   block; a `nil` represents no error.
+    public func delete<T: KeychainQuerying>(where query: T, treatNotFoundAsSuccess: Bool = true,
+                                            completionQueue: OperationQueue? = nil,
+                                            completion: @escaping (_ error: Error?) -> Void) {
+        configuration.serialQueue.async {
+            let result: Error?
+
+            do {
+                let localQuery = try makeDeleteQuery(query)
+                try self.configuration.strategy.delete(localQuery.query, treatNotFoundAsSuccess: treatNotFoundAsSuccess)
+                result = nil
+            } catch {
+                result = error
+            }
+
+            if let actualQueue = completionQueue {
+                actualQueue.addOperation {
+                    completion(result)
+                }
+            } else {
+                completion(result)
+            }
+        }
+    }
+
+    // MARK: Importing/Exporting
+#if os(macOS)
+    /// Export one or more certificates, identities, or keys from the keychain
+    /// - Parameters:
+    ///   - entities: The entities to export
+    ///   - config: A configuration representing all the options that can be provided to `SecItemExport`
+    /// - Returns: The exported data
+    public func exportItems(_ entities: [any KeychainExportable], config: KeychainExportConfig) throws -> Data {
+        try configuration.serialQueue.sync {
+            try configuration.strategy.exportItems(entities, configuration: config)
+        }
+    }
+
+    /// Import one or more certificates, identities, or keys to the keychain
+    ///
+    /// - Parameters:
+    ///   - data: The certificates, identities, or keys represented as `Data`
+    ///   - config: A configuration representing all the options that can be provided to `SecItemImport`
+    /// - Returns: An array of all the items that were imported
+    public func importItems<EntityType: KeychainImportable>(_ data: Data, config: KeychainImportConfig<EntityType>) throws -> [EntityType] {
+        try configuration.serialQueue.sync {
+            guard
+                config.shouldImportIntoKeychain,
+                let actualKeychain = configuration.keychain
+            else {
+                return try configuration.strategy.importItems(data, configuration: config)
+            }
+
+            try actualKeychain.attemptToOpen()
+            return try configuration.strategy.importItems(data, configuration: config, importKeychain: actualKeychain.reference)
+        }
+    }
+#endif
 
     // MARK: - Key generation
 
@@ -325,13 +457,7 @@ public struct Haversack {
     }
 
     private func unsynchronizedSave<T: KeychainStorable>(_ item: T, itemSecurity: ItemSecurity, updateExisting: Bool) throws -> T {
-        var query = self.merge(item: item, withSecurity: itemSecurity)
-
-        #if os(macOS)
-            query = try self.addKeychain(to: query, forAdd: true)
-        #endif
-
-        try self.precheck(query)
+        let query = try makeSaveQuery(item, itemSecurity: itemSecurity)
 
         if updateExisting {
             try unsynchronizedSave(query, deleteIfNeeded: item)
@@ -344,170 +470,67 @@ public struct Haversack {
 
     private func unsynchronizedKeyGeneration(fromConfig config: KeyGenerationConfig,
                                              itemSecurity: ItemSecurity) throws -> SecKey {
-        var query = self.merge(keyConfig: config, withSecurity: itemSecurity)
-
-        #if os(macOS)
-            query = try self.addKeychain(to: query, forAdd: true)
-        #endif
-
-        try self.precheck(query)
+        let query = try makeKeyGenerationQuery(fromConfig: config, itemSecurity: itemSecurity)
 
         return try self.configuration.strategy.generateKey(query)
     }
 
     private func unsynchronizedDelete<T: KeychainStorable>(_ item: T, treatNotFoundAsSuccess: Bool) throws {
-        var localQuery = item.entityQuery(includeSecureData: false)
-
-        #if os(macOS)
-            localQuery = try self.addKeychain(to: localQuery, forAdd: false)
-            // iOS does not support kSecMatchLimit for delete operations
-            localQuery[kSecMatchLimit as String] = kSecMatchLimitOne
-        #endif
+        let localQuery = try makeDeleteQuery(item)
 
         try self.configuration.strategy.delete(localQuery, treatNotFoundAsSuccess: treatNotFoundAsSuccess)
     }
+}
 
-    // MARK: - Deletion
-
-    /// Synchronously delete an item from the keychain that was previously retrieved from the keychain.
-    ///
-    /// If the item does not include a `reference` previously retrieved from the keychain: on iOS/tvOS/visionOS/watchOS
-	/// all items matching the item metadata will be deleted, while on macOS only the first matching item will be deleted.
-    /// - Parameter item: The item retrieved from the keychain.
-    /// - Parameter treatNotFoundAsSuccess: If true, no error is thrown when the query does not
-    /// find an item to delete; default is true.
-    /// - Throws: A ``HaversackError`` object if any errors occur.
-    public func delete<T: KeychainStorable>(_ item: T, treatNotFoundAsSuccess: Bool = true) throws {
-        return try configuration.serialQueue.sync {
-            try self.unsynchronizedDelete(item, treatNotFoundAsSuccess: treatNotFoundAsSuccess)
-        }
+// MARK: Query builders
+extension Haversack {
+    package func makeSearchQuery<T: KeychainQuerying>(_ query: T, singleItem: Bool) throws -> T {
+        try precheckSearch(query, singleItem: singleItem)
     }
 
-    /// Aynchronously delete an item from the keychain that was previously retrieved from the keychain.
-    ///
-    /// If the item does not include a `reference` previously retrieved from the keychain: on iOS/tvOS/visionOS/watchOS
-	/// all items matching the item metadata will be deleted, while on macOS only the first matching item will be deleted.
-    /// - Parameters:
-    ///   - item: The item retrieved from the keychain.
-    ///   - treatNotFoundAsSuccess: If true, no error is thrown when the query does not find an
-    ///   item to delete; default is true.
-    ///   - completionQueue: The `completion` function will be called on this queue if given, or
-    ///   the configuration's strategy's `serialQueue` if this is `nil`.
-    ///   - completion: A function/block to be called when the delete operation is completed.
-    ///   - error: If an error occurs during the delete operation it will be given to the completion
-    ///   block; a `nil` represents no error.
-    public func delete<T: KeychainStorable>(_ item: T, treatNotFoundAsSuccess: Bool = true,
-                                            completionQueue: OperationQueue? = nil,
-                                            completion: @escaping (_ error: Error?) -> Void) {
-        configuration.serialQueue.async {
-            let result: Error?
+    package func makeSaveQuery<T: KeychainStorable>(_ item: T, itemSecurity: ItemSecurity) throws -> SecurityFrameworkQuery {
+        var query = self.merge(item: item, withSecurity: itemSecurity)
 
-            do {
-                try self.unsynchronizedDelete(item, treatNotFoundAsSuccess: treatNotFoundAsSuccess)
-                result = nil
-            } catch {
-                result = error
-            }
+#if os(macOS)
+        query = try self.addKeychain(to: query, forAdd: true)
+#endif
 
-            if let actualQueue = completionQueue {
-                actualQueue.addOperation {
-                    completion(result)
-                }
-            } else {
-                completion(result)
-            }
-        }
+        try self.precheck(query)
+
+        return query
     }
 
-    /// Synchronously delete one or more items from the keychain based on a search query.
-    /// - Parameter query: A Haversack query item
-    /// - Parameter treatNotFoundAsSuccess: If true, no error is thrown when the query does not
-    /// find an item to delete; default is true.
-    /// - Throws: A ``HaversackError`` object if any errors occur.
-    public func delete<T: KeychainQuerying>(where query: T, treatNotFoundAsSuccess: Bool = true) throws {
-        try configuration.serialQueue.sync {
-            var localQuery: T
-            #if os(macOS)
-                localQuery = try self.addKeychain(to: query)
-            #else
-                localQuery = query
-            #endif
+    package func makeDeleteQuery<T: KeychainStorable>(_ item: T) throws -> SecurityFrameworkQuery {
+        var result = item.entityQuery(includeSecureData: false)
 
-            try self.configuration.strategy.delete(localQuery.query, treatNotFoundAsSuccess: treatNotFoundAsSuccess)
-        }
+#if os(macOS)
+        result = try self.addKeychain(to: result, forAdd: false)
+        // iOS does not support kSecMatchLimit for delete operations
+        result[kSecMatchLimit as String] = kSecMatchLimitOne
+#endif
+
+        return result
     }
 
-    /// Asynchronously delete one or more items from the keychain based on a search query.
-    /// - Parameters:
-    ///   - query: A Haversack search query.
-    ///   - treatNotFoundAsSuccess: If true, no error is thrown when the query does not find
-    ///   an item to delete; default is true.
-    ///   - completionQueue: The `completion` function will be called on this queue if given, or
-    ///   the configuration's strategy's `serialQueue` if this is `nil`.
-    ///   - completion: A function/block to be called when the delete operation is completed.
-    ///   - error: If an error occurs during the delete operation it will be given to the completion
-    ///   block; a `nil` represents no error.
-    public func delete<T: KeychainQuerying>(where query: T, treatNotFoundAsSuccess: Bool = true,
-                                            completionQueue: OperationQueue? = nil,
-                                            completion: @escaping (_ error: Error?) -> Void) {
-        configuration.serialQueue.async {
-            let result: Error?
-
-            do {
-                var localQuery: T
-                #if os(macOS)
-                    localQuery = try self.addKeychain(to: query)
-                #else
-                    localQuery = query
-                #endif
-
-                try self.configuration.strategy.delete(localQuery.query, treatNotFoundAsSuccess: treatNotFoundAsSuccess)
-                result = nil
-            } catch {
-                result = error
-            }
-
-            if let actualQueue = completionQueue {
-                actualQueue.addOperation {
-                    completion(result)
-                }
-            } else {
-                completion(result)
-            }
-        }
+    package func makeDeleteQuery<T: KeychainQuerying>(_ query: T) throws -> T {
+        var localQuery: T
+#if os(macOS)
+        localQuery = try self.addKeychain(to: query)
+#else
+        localQuery = query
+#endif
+        return localQuery
     }
 
-    // MARK: Importing/Exporting
-    #if os(macOS)
-    /// Export one or more certificates, identities, or keys from the keychain
-    /// - Parameters:
-    ///   - entity: The entities to export
-    ///   - config: A configuration representing all the options that can be provided to `SecItemExport`
-    /// - Returns: The exported data
-    public func exportItems(_ entities: [any KeychainExportable], config: KeychainExportConfig) throws -> Data {
-        try configuration.serialQueue.sync {
-            try configuration.strategy.exportItems(entities, configuration: config)
-        }
-    }
+    package func makeKeyGenerationQuery(fromConfig config: KeyGenerationConfig, itemSecurity: ItemSecurity) throws -> SecurityFrameworkQuery {
+        var query = self.merge(keyConfig: config, withSecurity: itemSecurity)
 
-    /// Import one or more certificates, identities, or keys to the keychain
-    ///
-    /// - Parameters:
-    ///   - data: The certificates, identities, or keys represented as `Data`
-    ///   - config: A configuration representing all the options that can be provided to `SecItemImport`
-    /// - Returns: An array of all the items that were imported
-    public func importItems<EntityType: KeychainImportable>(_ data: Data, config: KeychainImportConfig<EntityType>) throws -> [EntityType] {
-        try configuration.serialQueue.sync {
-            guard
-                config.shouldImportIntoKeychain,
-                let actualKeychain = configuration.keychain
-            else {
-                return try configuration.strategy.importItems(data, configuration: config)
-            }
+#if os(macOS)
+        query = try self.addKeychain(to: query, forAdd: true)
+#endif
 
-            try actualKeychain.attemptToOpen()
-            return try configuration.strategy.importItems(data, configuration: config, importKeychain: actualKeychain.reference)
-        }
+        try self.precheck(query)
+
+        return query
     }
-    #endif
 }

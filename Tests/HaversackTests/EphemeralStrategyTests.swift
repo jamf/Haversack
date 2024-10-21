@@ -155,6 +155,7 @@ final class EphemeralStrategyTests: XCTestCase {
         XCTAssertNil(try haversack.getDeleteMock(item: entity))
     }
 
+    #if os(macOS)
     func testSetGenerateKeyMock() throws {
         func loadKey() throws -> SecKey {
             let data = try Data(contentsOf: getURLForTestResource(named: "key.bsafe"))
@@ -180,4 +181,5 @@ final class EphemeralStrategyTests: XCTestCase {
         let mockDataValue = try haversack.getGenerateKeyMock(config: keyGenerationConfig)
         XCTAssertEqual(mockDataValue, key)
     }
+    #endif
 }

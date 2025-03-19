@@ -326,42 +326,6 @@ public struct Haversack {
         #endif
     }
 
-    /// Searches need to be prechecked for issues that Haversack's type-safety does not account for.
-    /// - Parameters:
-    ///   - query: The fluent keychain query.
-    ///   - singleItem: True if the search is supposed to look for a single item; false if the search is for multiple items.
-    /// - Returns: A fluent keychain query to use for actual searching.
-    private func precheckSearch<T: KeychainQuerying>(_ query: T, singleItem: Bool = false) throws -> T {
-        var result: T
-        #if os(macOS)
-            result = try self.addKeychain(to: query)
-        #else
-            result = query
-        #endif
-
-        // If no other data is being returned, set up to return data
-        if result.query[kSecReturnData as String] == nil
-            && result.query[kSecReturnAttributes as String] == nil
-            && result.query[kSecReturnRef as String] == nil
-            && result.query[kSecReturnPersistentRef as String] == nil {
-            result = result.returning(.data)
-        }
-
-        if singleItem {
-            result.query[kSecMatchLimit as String] = kSecMatchLimitOne
-        } else {
-            if (result.query[kSecClass as String] as? String == kSecClassGenericPassword as String
-                || result.query[kSecClass as String] as? String == kSecClassInternetPassword as String)
-                && result.query[kSecReturnData as String] as? Bool == true {
-                // swiftlint:disable:next line_length
-                throw HaversackError.notPossible("Search for multiple password items cannot return password data; use .first(where:) to find one password item or .returning(.persistentRef) or .returning(.reference) to find multiple items without password data")
-            }
-            result.query[kSecMatchLimit as String] = kSecMatchLimitAll
-        }
-
-        return result
-    }
-
     /// Detects whether a given entity query has more than the most basic of information.
     ///
     /// We need to know this because when saving a new item such as a certificate that is already in the keychain
@@ -484,8 +448,40 @@ public struct Haversack {
 
 // MARK: Query builders
 extension Haversack {
+    /// Creates a search query and checks for issues that Haversack's type-safety does not account for.
+    /// - Parameters:
+    ///   - query: The fluent keychain query.
+    ///   - singleItem: True if the search is supposed to look for a single item; false if the search is for multiple items.
+    /// - Returns: A fluent keychain query to use for actual searching.
     package func makeSearchQuery<T: KeychainQuerying>(_ query: T, singleItem: Bool) throws -> T {
-        try precheckSearch(query, singleItem: singleItem)
+        var result: T
+#if os(macOS)
+        result = try self.addKeychain(to: query)
+#else
+        result = query
+#endif
+
+        // If no other data is being returned, set up to return data
+        if result.query[kSecReturnData as String] == nil
+            && result.query[kSecReturnAttributes as String] == nil
+            && result.query[kSecReturnRef as String] == nil
+            && result.query[kSecReturnPersistentRef as String] == nil {
+            result = result.returning(.data)
+        }
+
+        if singleItem {
+            result.query[kSecMatchLimit as String] = kSecMatchLimitOne
+        } else {
+            if (result.query[kSecClass as String] as? String == kSecClassGenericPassword as String
+                || result.query[kSecClass as String] as? String == kSecClassInternetPassword as String)
+                && result.query[kSecReturnData as String] as? Bool == true {
+                // swiftlint:disable:next line_length
+                throw HaversackError.notPossible("Search for multiple password items cannot return password data; use .first(where:) to find one password item or .returning(.persistentRef) or .returning(.reference) to find multiple items without password data")
+            }
+            result.query[kSecMatchLimit as String] = kSecMatchLimitAll
+        }
+
+        return result
     }
 
     package func makeSaveQuery<T: KeychainStorable>(_ item: T, itemSecurity: ItemSecurity) throws -> SecurityFrameworkQuery {

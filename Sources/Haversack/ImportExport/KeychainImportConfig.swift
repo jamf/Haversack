@@ -122,7 +122,6 @@ public struct KeychainImportConfig<T: KeychainImportable> {
     }
 
     /// Make any imported keys extractable. By default keys are not extractable after import
-    /// - Parameter extractable: Whether or not the keychain item can be exported from its keychain (Defaults to false)
     /// - Returns: A `KeychainImportConfig` struct
     public func extractable() throws -> Self where T: PrivateKeyImporting {
         // swiftlint:disable:next line_length

@@ -28,7 +28,7 @@ jobs:
     - name: Run tvOS tests
       run: xcodebuild test -scheme Haversack-Package -destination 'platform=tvOS Simulator,name=Apple TV 4K (3rd generation)'
     - name: Run watchOS tests
-      run: xcodebuild test -scheme Haversack-Package -destination 'platform=watchOS Simulator,name=Apple Watch Series 8 (41mm)'
+      run: xcodebuild test -scheme Haversack-Package -destination 'platform=watchOS Simulator,name=Apple Watch Series 10 (42mm)'
 
   SwiftLint:
     runs-on: ubuntu-latest

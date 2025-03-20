@@ -4,7 +4,7 @@
 import Foundation
 import Haversack
 
-/// A strategy which uses a simple dictionary to search, store, and delete data instead of hitting an actual keychain.
+/// A strategy which uses a simple dictionary to import, export, search, store, and delete data instead of hitting an actual keychain.
 ///
 /// The keys of the ``mockData`` dictionary are calculated from the queries that are sent through Haversack.
 open class HaversackEphemeralStrategy: HaversackStrategy {
@@ -95,6 +95,7 @@ open class HaversackEphemeralStrategy: HaversackStrategy {
     /// - Parameter query: An instance of a `Haversack/SecurityFrameworkQuery`.
     /// - Returns: Returns the private key of a new cryptographic key pair.
     /// - Throws: An `NSError` object if the key cannot be found. Prior to throwing, also stores the query in the ``mockData`` for future inspection.
+    /// - Important: The mock value must be an instance of `SecKey`
     override open func generateKey(_ query: SecurityFrameworkQuery) throws -> SecKey {
         let theKey = key(for: query)
 
@@ -137,7 +138,11 @@ open class HaversackEphemeralStrategy: HaversackStrategy {
     /// - Returns: The items in ``mockImportedEntities``
     /// - Throws: Either ``mockImportError`` or an `NSError` with the ``errorDomain`` domain if the
     /// items in ``mockImportedEntities`` don't match the type of the `EntityType` of the `configuration` parameter.
-    override open func importItems<EntityType: KeychainImportable>(_ items: Data, configuration: KeychainImportConfig<EntityType>, importKeychain: SecKeychain? = nil) throws -> [EntityType] {
+    override open func importItems<EntityType: KeychainImportable>(
+        _ items: Data,
+        configuration: KeychainImportConfig<EntityType>,
+        importKeychain: SecKeychain? = nil
+    ) throws -> [EntityType] {
         if let keyImportConfig = configuration as? KeychainImportConfig<KeyEntity> {
             keyImportConfiguration = keyImportConfig
         } else if let certificateImportConfig = configuration as? KeychainImportConfig<CertificateEntity> {

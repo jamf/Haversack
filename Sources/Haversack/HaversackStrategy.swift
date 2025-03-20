@@ -202,7 +202,7 @@ open class HaversackStrategy {
     ///
     /// This should not be called directly but is used by ``Haversack/Haversack/exportItems(_:config:)`` to perform the actual exporting
     /// - Parameters:
-    ///   - item: The keys, certificates, or identities to export
+    ///   - items: The keys, certificates, or identities to export
     ///   - configuration: A configuration representing all the options that can be provided to `SecItemExport`
     /// - Returns: A `Data` representation of the keychain item
     open func exportItems(_ items: [any KeychainExportable], configuration: KeychainExportConfig) throws -> Data {
@@ -232,8 +232,9 @@ open class HaversackStrategy {
 
     /// Imports one or more keys, certificates, or identities and adds them to the keychain
     /// - Parameters:
-    ///   - item: The keys, certificates, or identities to import
+    ///   - items: The keys, certificates, or identities to import
     ///   - configuration: A configuration representing all the options that can be provided to `SecItemImport`
+    ///   - importKeychain: The keychain to import the items to
     /// - Returns: An array of all the keychain items imported
     open func importItems<EntityType: KeychainImportable>(_ items: Data, configuration: KeychainImportConfig<EntityType>, importKeychain: SecKeychain? = nil) throws -> [EntityType] {
         var inputFormat = configuration.inputFormat

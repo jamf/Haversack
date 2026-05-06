@@ -3,9 +3,8 @@
 
 import Foundation
 
-/// Superclass of the ``GenericPasswordEntity`` and the ``InternetPasswordEntity`` that
-/// handles storage and minor processing of shared data fields.  The `PasswordBaseEntity` is never
-/// instantiated on its own.
+/// Protocol for the ``GenericPasswordEntity`` and the ``InternetPasswordEntity``
+/// that handles storage and minor processing of shared data fields.
 public protocol PasswordBaseEntity: KeychainStorable {
     /// The keychain item reference, if it has been returned.
     var reference: SecurityFrameworkType? { get set }

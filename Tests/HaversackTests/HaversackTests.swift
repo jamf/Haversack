@@ -6,7 +6,7 @@ import Haversack
 import HaversackMock
 import XCTest
 
-final class HaversackTests: XCTestCase, @unchecked Sendable {
+final class HaversackTests: XCTestCase {
     var haversack: Haversack!
     var strategy: HaversackEphemeralStrategy!
 
@@ -95,10 +95,10 @@ final class HaversackTests: XCTestCase, @unchecked Sendable {
         let queryFinished = expectation(description: "search finished")
 
         // when
-        haversack.first(where: pwQuery) { (result) in
+        haversack.first(where: pwQuery) { [sampleDomain] (result) in
             // then
             if case .success(let actual) = result {
-                XCTAssertEqual(actual.server, self.sampleDomain)
+                XCTAssertEqual(actual.server, sampleDomain)
             } else if case .failure(let error) = result {
                 XCTFail("Had .failure from first(where:): \(error)")
             }
@@ -152,12 +152,12 @@ final class HaversackTests: XCTestCase, @unchecked Sendable {
         let queryFinished = expectation(description: "search finished")
 
         // when
-        haversack.search(where: keyQuery) { (result) in
+        haversack.search(where: keyQuery) { [sampleDomain] (result) in
             // then
             if case .success(let actual) = result {
                 XCTAssertEqual(actual.count, 1)
                 XCTAssertEqual(actual.first?.keySizeInBits, 2048)
-                XCTAssertEqual(actual.first?.label, self.sampleDomain)
+                XCTAssertEqual(actual.first?.label, sampleDomain)
             } else if case .failure(let error) = result {
                 XCTFail("Had .failure from search(where:): \(error)")
             }
@@ -181,10 +181,10 @@ final class HaversackTests: XCTestCase, @unchecked Sendable {
         let queryFinished = expectation(description: "search finished")
 
         // when
-        haversack.save(sampleEntity, itemSecurity: .standard, updateExisting: true) { (result) in
+        haversack.save(sampleEntity, itemSecurity: .standard, updateExisting: true) { [sampleDomain] (result) in
             // then
             if case .success(let actual) = result {
-                XCTAssertEqual(actual.server, self.sampleDomain)
+                XCTAssertEqual(actual.server, sampleDomain)
             } else if case .failure(let error) = result {
                 XCTFail("Had .failure from save(): \(error)")
             }

@@ -12,28 +12,11 @@ public struct ItemSecurity: Sendable {
     /// The item is not part of any app group or keychain group.
     public static let standard = ItemSecurity().retrievableNoThrow(when: .simple(.unlockedThisDeviceOnly))
 
-    private let queryLock = NSLock()
-    private nonisolated(unsafe) var _query: SecurityFrameworkQuery
     /// The keychain query.  **Do not** manipulate this directly.
     ///
     /// You should not manipulate this directly.  Instead use the fluent methods such as ``containedIn(appGroup:)``
     /// and ``retrievable(when:)`` to build up the query.
-    public var query: SecurityFrameworkQuery {
-        @storageRestrictions(initializes: _query)
-        init {
-            _query = newValue
-        }
-        get {
-            queryLock.withLock {
-                _query
-            }
-        }
-        set {
-            queryLock.withLock {
-                _query = newValue
-            }
-        }
-    }
+    @NSLocked public var query: SecurityFrameworkQuery
 
     /// Construct an empty ``ItemSecurity``
     ///

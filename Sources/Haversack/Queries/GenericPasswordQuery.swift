@@ -7,24 +7,7 @@ import Foundation
 ///
 /// Successful searches produce ``GenericPasswordEntity`` objects.
 public struct GenericPasswordQuery {
-    private let queryLock = NSLock()
-    private nonisolated(unsafe) var _query: SecurityFrameworkQuery
-    public var query: SecurityFrameworkQuery {
-        @storageRestrictions(initializes: _query)
-        init {
-            _query = newValue
-        }
-        get {
-            queryLock.withLock {
-                _query
-            }
-        }
-        set {
-            queryLock.withLock {
-                _query = newValue
-            }
-        }
-    }
+    @NSLocked public var query: SecurityFrameworkQuery
 
     /// Create a GenericPasswordQuery
     /// - Parameter service: The name of the service associated with the password

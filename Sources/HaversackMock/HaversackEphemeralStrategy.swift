@@ -5,8 +5,11 @@ import Foundation
 import Haversack
 
 /// A strategy which uses a simple dictionary to import, export, search, store, and delete data instead of hitting an actual keychain.
-///
+/// 
 /// The keys of the ``mockData`` dictionary are calculated from the queries that are sent through Haversack.
+///
+/// The class conforms to `@unchecked Sendable` in order to support subclassing, but it should only be used serially during
+/// testing and is not inherently thread-safe.
 open class HaversackEphemeralStrategy: HaversackStrategy, @unchecked Sendable {
     /// The dictionary that is used for storage of keychain items
     ///

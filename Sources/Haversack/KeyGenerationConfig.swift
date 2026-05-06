@@ -8,28 +8,11 @@ import Foundation
 /// Create a `KeyGenerationConfig` and then pass it to ``Haversack/Haversack/generateKey(fromConfig:itemSecurity:)-1r4ki``
 /// or one of it's asynchronous variants.
 public struct KeyGenerationConfig: Sendable {
-    private let queryLock = NSLock()
-    private nonisolated(unsafe) var _query = SecurityFrameworkQuery()
     /// The keychain config query.
     ///
     /// You cannot manipulate this directly.  Instead use the fluent methods such as ``labeled(_:)``,
     /// ``tagged(_:)``, and others in order to build up the key generation configuration.
-    public private(set) var query: SecurityFrameworkQuery {
-        @storageRestrictions(initializes: _query)
-        init {
-            _query = newValue
-        }
-        get {
-            queryLock.withLock {
-                _query
-            }
-        }
-        set {
-            queryLock.withLock {
-                _query = newValue
-            }
-        }
-    }
+    @NSLocked public var query: SecurityFrameworkQuery = SecurityFrameworkQuery()
 
     /// Initializer for a key _not_ in the Secure Enclave.
     ///

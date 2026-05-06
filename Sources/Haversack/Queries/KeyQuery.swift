@@ -9,24 +9,7 @@ import Foundation
 public struct KeyQuery: KeyBaseQuerying {
     public typealias Entity = KeyEntity
 
-    private let queryLock = NSLock()
-    private nonisolated(unsafe) var _query: SecurityFrameworkQuery
-    public var query: SecurityFrameworkQuery {
-        @storageRestrictions(initializes: _query)
-        init {
-            _query = newValue
-        }
-        get {
-            queryLock.withLock {
-                _query
-            }
-        }
-        set {
-            queryLock.withLock {
-                _query = newValue
-            }
-        }
-    }
+    @NSLocked public var query: SecurityFrameworkQuery
 
     /// Create a ``KeyQuery`` instance
     /// - Parameter label: The keychain label of the item.  Uses `kSecAttrLabel`.

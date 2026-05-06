@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// Copyright 2023, Jamf
+// Copyright 2026, Jamf
 
 import Foundation
 import os.log
@@ -7,7 +7,7 @@ import os.log
 /// Protocol to use with any type that can be converted to a [Data](https://developer.apple.com/documentation/Foundation/Data) representation.
 ///
 /// The type can be stored in the keychain as a generic password using the ``GenericPasswordEntity`` type.
-public protocol GenericPasswordConvertible {
+public protocol GenericPasswordConvertible: Sendable {
     /// A raw representation of the thing.
     var rawRepresentation: Data { get }
 
@@ -23,7 +23,7 @@ extension GenericPasswordEntity {
     /// > Tip: In order to persist the value to the keychain, one of the Haversack `save()` methods should be called
     /// with the initialized ``GenericPasswordEntity``.
     /// - Parameter convertible: Any type that can be converted to plain [Data](https://developer.apple.com/documentation/Foundation/Data)
-    public convenience init<T: GenericPasswordConvertible>(_ convertible: T) {
+    public init<T: GenericPasswordConvertible>(_ convertible: T) {
         self.init(from: nil, data: convertible.rawRepresentation, attributes: nil, persistentRef: nil)
     }
 

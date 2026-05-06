@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// Copyright 2023, Jamf
+// Copyright 2026, Jamf
 
 import Foundation
 
@@ -12,7 +12,7 @@ import Foundation
 ///
 /// Note that if a different queue is specified, all instances of ``Haversack/Haversack`` should be initialized with
 /// the same queue so that all keychain access is done atomically.
-public struct HaversackConfiguration {
+public struct HaversackConfiguration: Sendable {
     /// The `DispatchQueue` to use in order to serialize all keychain access
     ///
     /// If not otherwise specified, a default serial queue will be created with the label "com.jamf.haversack".

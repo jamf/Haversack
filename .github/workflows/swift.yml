@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: MIT
-# Copyright 2024, Jamf
+# Copyright 2026, Jamf
 
 name: UnitTests
 
@@ -11,29 +11,29 @@ on:
 
 jobs:
   Test-on-macOS:
-    runs-on: macos-14
+    runs-on: macos-26
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
     - name: Run macOS tests (including integration)
       run: swift test
 
   Test-on-all-others:
-    runs-on: macos-14
+    runs-on: macos-26
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
     - name: Run iOS tests
-      run: xcodebuild test -scheme Haversack-Package -destination 'platform=iOS Simulator,name=iPhone 14'
+      run: xcodebuild test -scheme Haversack-Package -destination 'platform=iOS Simulator,name=iPhone 17'
     - name: Run tvOS tests
       run: xcodebuild test -scheme Haversack-Package -destination 'platform=tvOS Simulator,name=Apple TV 4K (3rd generation)'
     - name: Run watchOS tests
-      run: xcodebuild test -scheme Haversack-Package -destination 'platform=watchOS Simulator,name=Apple Watch Series 10 (42mm)'
+      run: xcodebuild test -scheme Haversack-Package -destination 'platform=watchOS Simulator,name=Apple Watch Series 11 (42mm)'
 
   SwiftLint:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
     - name: GitHub Action for SwiftLint
       uses: norio-nomura/action-swiftlint@3.2.1

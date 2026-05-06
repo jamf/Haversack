@@ -12,7 +12,7 @@ file_header:
   severity: error
   required_pattern: |
                     \/\/ SPDX-License-Identifier: MIT
-                    \/\/ Copyright 2023, Jamf
+                    \/\/ Copyright 2026, Jamf
 
 opt_in_rules:
   - contains_over_filter_count

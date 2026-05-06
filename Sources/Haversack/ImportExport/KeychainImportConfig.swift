@@ -1,14 +1,15 @@
 // SPDX-License-Identifier: MIT
-// Copyright 2023, Jamf
+// Copyright 2026, Jamf
 
 import Foundation
+@preconcurrency import Security
 
 #if os(macOS)
 /// Used with ``Haversack`` to import Keychain items
 ///
 /// Create a `KeychainImportConfig` and specify what type of keychain item you're importing,
 /// then pass it to ``Haversack/Haversack/importItems(_:config:)``
-public struct KeychainImportConfig<T: KeychainImportable> {
+public struct KeychainImportConfig<T: KeychainImportable>: Sendable {
     public typealias ImportedEntity = T
 
     // MARK: Public
@@ -21,7 +22,7 @@ public struct KeychainImportConfig<T: KeychainImportable> {
     /// - Returns: A `KeychainImportConfig` struct
     public func fileNameOrExtension(_ nameOrExtension: String) -> Self {
         var copy = self
-        copy.fileNameOrExtension = nameOrExtension as CFString
+        copy.fileNameOrExtension = nameOrExtension
 
         return copy
     }
@@ -152,8 +153,8 @@ public struct KeychainImportConfig<T: KeychainImportable> {
         switch strategy {
         case .promptUser(let prompt, let title):
             copy.keyImportFlags.insert(.securePassphrase)
-            copy.alertPrompt = prompt as CFString
-            copy.alertTitle = title as CFString
+            copy.alertPrompt = prompt
+            copy.alertTitle = title
         case .useProvided(let provider):
             copy.passphraseProvider = provider
         }
@@ -163,7 +164,7 @@ public struct KeychainImportConfig<T: KeychainImportable> {
 
     // MARK: Internal
     // SecItemImport parameters
-    var fileNameOrExtension: CFString?
+    var fileNameOrExtension: String?
     var inputFormat: SecExternalFormat = .formatUnknown
     var itemType: SecExternalItemType = .itemTypeUnknown
     var secItemImportFlags = SecItemImportExportFlags()
@@ -172,10 +173,10 @@ public struct KeychainImportConfig<T: KeychainImportable> {
     // SecItemImportExportKeyParameters
     var accessRef: SecAccess?
     var keyUsage: KeyUsagePolicy?
-    var passphraseProvider: (() -> String)?
+    var passphraseProvider: (@Sendable () -> String)?
     var keyImportFlags = SecKeyImportExportFlags()
-    var alertPrompt: CFString?
-    var alertTitle: CFString?
+    var alertPrompt: String?
+    var alertTitle: String?
     var isExtractable: Bool?
     var isPermanent: Bool?
     var isSensitive: Bool?

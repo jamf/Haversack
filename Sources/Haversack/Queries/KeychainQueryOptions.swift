@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT
-// Copyright 2023, Jamf
+// Copyright 2026, Jamf
 
 import Foundation
 
 /// Options for what type of data to return from a keychain query.
-public struct KeychainDataOptions: OptionSet {
+public struct KeychainDataOptions: OptionSet, Sendable {
     public let rawValue: Int
 
     public init(rawValue: Int) {
@@ -30,7 +30,7 @@ public struct KeychainDataOptions: OptionSet {
 }
 
 /// Options for how to compare strings in keychain queries.
-public struct KeychainStringComparisonOptions: OptionSet {
+public struct KeychainStringComparisonOptions: OptionSet, Sendable {
     public let rawValue: Int
 
     public init(rawValue: Int) {

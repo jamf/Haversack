@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT
-// Copyright 2023, Jamf
+// Copyright 2026, Jamf
 
 import Foundation
 
 /// A typesafe way to specify when a keychain item is available for use.
-public enum KeychainItemRetrievability: Equatable {
+public enum KeychainItemRetrievability: Equatable, Sendable {
     /// Specify when the keychain item is available
     ///
     /// See [Apple: Restricting Keychain Item Accessibility](https://developer.apple.com/documentation/security/keychain_services/keychain_items/restricting_keychain_item_accessibility)

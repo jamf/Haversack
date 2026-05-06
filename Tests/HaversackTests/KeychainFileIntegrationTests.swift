@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// Copyright 2023, Jamf
+// Copyright 2026, Jamf
 
 import Foundation
 
@@ -22,7 +22,7 @@ final class KeychainFileIntegrationTests: XCTestCase {
         let config = HaversackConfiguration(keychain: keychainFile)
         let haversack = Haversack(configuration: config)
 
-        let newPassword = InternetPasswordEntity()
+        var newPassword = InternetPasswordEntity()
         newPassword.server = "test.example.com"
         newPassword.label = "unit test password"
         newPassword.passwordData = "top secret".data(using: .utf8)

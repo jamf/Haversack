@@ -5,8 +5,21 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
+
+## [1.4.0] - 2026-03-18
 ### Added
 - Added convenience methods for accessing mock data values on the `HaversackEphemeralStrategy`
+- Added `Sendable` conformance to all public types, protocols, and enums.
+
+### Changed
+- Updated to build using Swift 6.
+- Entity types (`CertificateEntity`, `GenericPasswordEntity`, `InternetPasswordEntity`, `IdentityEntity`, `KeyEntity`) converted from classes to structs.
+- `PasswordBaseEntity` converted from a base class to a protocol with default implementations.
+- `KeychainStorable` protocol now requires `Equatable` conformance.
+- `KeychainFile` is now a `final class`.
+- Query and configuration properties use `NSLock` for thread-safe access.
+- Internal `CFString` dictionary keys migrated to `String` for `Sendable` compatibility.
+- Completion handlers and closure properties marked `@Sendable`.
 
 ## [1.3.0] - 2024-02-11
 ### Added

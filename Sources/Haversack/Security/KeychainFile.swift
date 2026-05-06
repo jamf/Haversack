@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// Copyright 2023, Jamf
+// Copyright 2026, Jamf
 
 import Foundation
 import os.log
@@ -10,7 +10,7 @@ import os.log
 public typealias FilePath = String
 
 /// A function/block that provides the unencrypted plain `String` password to a keychain file on macOS.
-public typealias KeychainPasswordProvider = (_ keychainPath: FilePath) -> String
+public typealias KeychainPasswordProvider = @Sendable (_ keychainPath: FilePath) -> String
 
 /// Represents a legacy custom keychain file to use with the Security framework.
 ///
@@ -23,7 +23,7 @@ public typealias KeychainPasswordProvider = (_ keychainPath: FilePath) -> String
 /// Opening, creating, or deleting a custom keychain file is logged at `.default` level.
 /// Locking/unlocking the keychain file is logged at the `.info` level.
 /// All errors are logged at the `.error` level.
-public class KeychainFile {
+public final class KeychainFile: Sendable {
     /// The path to the system keychain that contains the globally trusted root CA certificates.
     static let rootCertificatesKeychainPath = "/System/Library/Keychains/SystemRootCertificates.keychain"
 
@@ -59,8 +59,25 @@ public class KeychainFile {
     /// A function that provides the password to the keychain file.
     let passwordProvider: KeychainPasswordProvider?
 
+    private let referenceLock = NSLock()
+    private nonisolated(unsafe) var _reference: SecKeychain?
     /// A reference to the opened keychain.
-    var reference: SecKeychain?
+    var reference: SecKeychain? {
+        @storageRestrictions(initializes: _reference)
+        init {
+            _reference = newValue
+        }
+        get {
+            referenceLock.withLock {
+                _reference
+            }
+        }
+        set {
+            referenceLock.withLock {
+                _reference = newValue
+            }
+        }
+    }
 
     /// Create an object representing a custom keychain file.
     /// - Parameters:

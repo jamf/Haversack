@@ -71,7 +71,7 @@ Save a password for a website:
 
 ```swift
     let myHaversack = Haversack()
-    let newPassword = InternetPasswordEntity()
+    var newPassword = InternetPasswordEntity()
     newPassword.protocol = .HTTPS
     newPassword.server = "test.example.com"
     newPassword.account = "mine"
@@ -145,3 +145,4 @@ Before submitting your pull request, please do the following:
 
 - Kyle Hammond
 - Jacob Hearst
+- Michael Link

@@ -1,10 +1,11 @@
 // SPDX-License-Identifier: MIT
-// Copyright 2023, Jamf
+// Copyright 2026, Jamf
 
 import Foundation
+@preconcurrency import Security
 
 /// Represents a public or private key in the keychain.
-public class KeyEntity: KeychainStorable, KeychainPortable {
+public struct KeyEntity: KeychainStorable, KeychainPortable {
     /// Uses the `SecKey` type to interface with the Security framework.
     public typealias SecurityFrameworkType = SecKey
 
@@ -53,8 +54,8 @@ public class KeyEntity: KeychainStorable, KeychainPortable {
     /// Create an empty key entity
     public init() { }
 
-    public required init(from keychainItemRef: SecurityFrameworkType?, data: Data?,
-                         attributes: [String: Any]?, persistentRef: Data?) {
+    public init(from keychainItemRef: SecurityFrameworkType?, data: Data?,
+                attributes: [String: Any]?, persistentRef: Data?) {
         reference = keychainItemRef
         keyData = data
         self.persistentRef = persistentRef

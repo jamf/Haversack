@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// Copyright 2023, Jamf
+// Copyright 2026, Jamf
 
 import Foundation
 
@@ -7,7 +7,7 @@ import Foundation
 /// Used with ``Haversack`` to export Keychain items
 ///
 /// Create a `KeychainExportConfig` and pass it to ``Haversack/Haversack/exportItems(_:config:)``
-public struct KeychainExportConfig {
+public struct KeychainExportConfig: Sendable {
     // MARK: Public
     public init(outputFormat: SecExternalFormat) {
         self.outputFormat = outputFormat
@@ -33,8 +33,8 @@ public struct KeychainExportConfig {
         switch strategy {
         case .promptUser(let prompt, let title):
             copy.keyImportExportFlags = .securePassphrase
-            copy.alertPrompt = prompt as CFString
-            copy.alertTitle = title as CFString
+            copy.alertPrompt = prompt
+            copy.alertTitle = title
         case .useProvided(let provider):
             copy.passphraseProvider = provider
         }
@@ -51,11 +51,11 @@ public struct KeychainExportConfig {
         params.flags = keyImportExportFlags
 
         if let alertPrompt = alertPrompt {
-            params.alertPrompt = Unmanaged.passRetained(alertPrompt)
+            params.alertPrompt = Unmanaged.passRetained(alertPrompt as CFString)
         }
 
         if let alertTitle = alertTitle {
-            params.alertTitle = Unmanaged.passRetained(alertTitle)
+            params.alertTitle = Unmanaged.passRetained(alertTitle as CFString)
         }
 
         if let passphrase = passphraseProvider {
@@ -66,10 +66,10 @@ public struct KeychainExportConfig {
     }
 
     // MARK: Private
-    private var alertPrompt: CFString?
-    private var alertTitle: CFString?
+    private var alertPrompt: String?
+    private var alertTitle: String?
     /// A function that provides the password to the keychain file.
-    private var passphraseProvider: (() -> String)?
+    private var passphraseProvider: (@Sendable () -> String)?
     private var keyImportExportFlags = SecKeyImportExportFlags()
 }
 #endif

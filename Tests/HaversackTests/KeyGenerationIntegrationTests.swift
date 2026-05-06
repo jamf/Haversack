@@ -1,7 +1,8 @@
 // SPDX-License-Identifier: MIT
-// Copyright 2023, Jamf
+// Copyright 2026, Jamf
 
 import XCTest
+@preconcurrency import Security
 import Haversack
 
 #if os(macOS)
@@ -54,7 +55,7 @@ final class KeyGenerationIntegrationTests: XCTestCase {
             .labeled("Async Key")
             .tagged(theTag)
         let keyGenerated = expectation(description: "new key has been generated")
-        var newKey: SecKey?
+        nonisolated(unsafe) var newKey: SecKey?
 
         // when
         haversack.generateKey(fromConfig: keyInfo, itemSecurity: .standard,

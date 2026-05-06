@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// Copyright 2023, Jamf
+// Copyright 2026, Jamf
 
 import CryptoKit
 import Foundation
@@ -9,7 +9,7 @@ import os.log
 // MARK: - SecKeyConvertible
 
 /// Protocol for CryptoKit key types that can be converted to `SecKey` representations.
-public protocol SecKeyConvertible {
+public protocol SecKeyConvertible: Sendable {
     /// Creates a key from an X9.63 representation.
     init<Bytes>(x963Representation: Bytes) throws where Bytes: ContiguousBytes
 
@@ -41,7 +41,7 @@ public extension KeyEntity {
     /// with the initialized ``KeyEntity``.
     /// - Parameter key: A CryptoKit elliptic key
     /// - Throws: Throws an `NSError` if there is a problem converting to a `SecKey`
-    convenience init<T: SecKeyConvertible>(_ key: T) throws {
+    init<T: SecKeyConvertible>(_ key: T) throws {
         let attributes = [kSecAttrKeyType: kSecAttrKeyTypeECSECPrimeRandom,
                           kSecAttrKeyClass: kSecAttrKeyClassPrivate] as [String: Any]
         var possibleError: Unmanaged<CFError>?

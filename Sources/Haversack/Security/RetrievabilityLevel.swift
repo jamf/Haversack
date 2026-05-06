@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// Copyright 2023, Jamf
+// Copyright 2026, Jamf
 
 import Foundation
 
@@ -9,7 +9,7 @@ import Foundation
 /// the accessibility APIs that are used for user experience accommodations.
 /// - Note: This is a wrapper around the `kSecAttrAccessible...` constants.  Haversack does not
 /// support the deprecated "always available" levels because they provide no security.
-public enum RetrievabilityLevel: CaseIterable, Equatable {
+public enum RetrievabilityLevel: CaseIterable, Equatable, Sendable {
     /// Retrievable when the device is unlocked; will synchronize to iCloud Keychain and other devices.
     ///
     /// Recommended for standard user applications without background processing.

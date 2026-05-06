@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// Copyright 2023, Jamf
+// Copyright 2026, Jamf
 
 import Foundation
 import Haversack
@@ -12,12 +12,12 @@ final class HaversackTests: XCTestCase {
 
     private let sampleDomain = "example.com"
     private let sampleEntity: InternetPasswordEntity = {
-        let entity = InternetPasswordEntity()
+        var entity = InternetPasswordEntity()
         entity.server = "example.com"
         return entity
     }()
     private let sampleKey: KeyEntity = {
-        let entity = KeyEntity()
+        var entity = KeyEntity()
         entity.label = "example.com"
         entity.keySizeInBits = 2048
         return entity
@@ -95,10 +95,10 @@ final class HaversackTests: XCTestCase {
         let queryFinished = expectation(description: "search finished")
 
         // when
-        haversack.first(where: pwQuery) { (result) in
+        haversack.first(where: pwQuery) { [sampleDomain] (result) in
             // then
             if case .success(let actual) = result {
-                XCTAssertEqual(actual.server, self.sampleDomain)
+                XCTAssertEqual(actual.server, sampleDomain)
             } else if case .failure(let error) = result {
                 XCTFail("Had .failure from first(where:): \(error)")
             }
@@ -152,12 +152,12 @@ final class HaversackTests: XCTestCase {
         let queryFinished = expectation(description: "search finished")
 
         // when
-        haversack.search(where: keyQuery) { (result) in
+        haversack.search(where: keyQuery) { [sampleDomain] (result) in
             // then
             if case .success(let actual) = result {
                 XCTAssertEqual(actual.count, 1)
                 XCTAssertEqual(actual.first?.keySizeInBits, 2048)
-                XCTAssertEqual(actual.first?.label, self.sampleDomain)
+                XCTAssertEqual(actual.first?.label, sampleDomain)
             } else if case .failure(let error) = result {
                 XCTFail("Had .failure from search(where:): \(error)")
             }
@@ -181,10 +181,10 @@ final class HaversackTests: XCTestCase {
         let queryFinished = expectation(description: "search finished")
 
         // when
-        haversack.save(sampleEntity, itemSecurity: .standard, updateExisting: true) { (result) in
+        haversack.save(sampleEntity, itemSecurity: .standard, updateExisting: true) { [sampleDomain] (result) in
             // then
             if case .success(let actual) = result {
-                XCTAssertEqual(actual.server, self.sampleDomain)
+                XCTAssertEqual(actual.server, sampleDomain)
             } else if case .failure(let error) = result {
                 XCTFail("Had .failure from save(): \(error)")
             }

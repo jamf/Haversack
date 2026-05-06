@@ -1,10 +1,11 @@
 // SPDX-License-Identifier: MIT
-// Copyright 2023, Jamf
+// Copyright 2026, Jamf
 
 import Foundation
+@preconcurrency import Security
 
 /// Represents a certificate plus private key in the keychain.
-public class IdentityEntity: KeychainStorable, KeychainPortable {
+public struct IdentityEntity: KeychainStorable, KeychainPortable {
     /// Uses the `SecIdentity` type to interface with the Security framework.
     public typealias SecurityFrameworkType = SecIdentity
 
@@ -20,8 +21,8 @@ public class IdentityEntity: KeychainStorable, KeychainPortable {
     /// When requesting attributes, this is filled with the certificate info from the identity; read only.
     public var certificate: CertificateEntity?
 
-    public required init(from keychainItemRef: SecurityFrameworkType?, data: Data?,
-                         attributes: [String: Any]?, persistentRef: Data?) {
+    public init(from keychainItemRef: SecurityFrameworkType?, data: Data?,
+                attributes: [String: Any]?, persistentRef: Data?) {
 
         reference = keychainItemRef
         self.persistentRef = persistentRef

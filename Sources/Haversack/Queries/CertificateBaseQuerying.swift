@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// Copyright 2023, Jamf
+// Copyright 2026, Jamf
 
 import Foundation
 
@@ -33,7 +33,7 @@ public protocol CertificateBaseQuerying: KeychainQuerying {
 ///
 /// Refer to the ``KeychainQuerying/stringMatching(options:)-7t0r4`` function and
 /// ``KeychainStringComparisonOptions`` enum for additional ways to modify the string matching.
-public enum CertSubjectMatchType {
+public enum CertSubjectMatchType: Sendable {
     /// The subject of the cert must contain the string, but may have any other prefix and/or suffix.
     ///
     /// Refer to the ``KeychainQuerying/stringMatching(options:)-7t0r4`` function and

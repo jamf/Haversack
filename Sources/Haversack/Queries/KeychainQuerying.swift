@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// Copyright 2023, Jamf
+// Copyright 2026, Jamf
 
 import Foundation
 
@@ -7,7 +7,7 @@ import Foundation
 public typealias SecurityFrameworkQuery = [String: Any]
 
 /// Base protocol for the fluent interface to search for a keychain item
-public protocol KeychainQuerying {
+public protocol KeychainQuerying: Sendable {
     /// The type of entity that is created when searching the keychain with this query.
     associatedtype Entity: KeychainStorable
 

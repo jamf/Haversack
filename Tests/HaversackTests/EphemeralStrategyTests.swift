@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// Copyright 2023, Jamf
+// Copyright 2026, Jamf
 
 import XCTest
 import Haversack
@@ -20,7 +20,7 @@ final class EphemeralStrategyTests: XCTestCase {
             .matching(account: "luke")
             .returning(.reference)
 
-        let expectedEntity = InternetPasswordEntity()
+        var expectedEntity = InternetPasswordEntity()
         expectedEntity.protocol = .appleTalk
         try haversack.setSearchFirstMock(where: pwQuery, mockValue: expectedEntity)
 
@@ -39,7 +39,7 @@ final class EphemeralStrategyTests: XCTestCase {
         let pwQuery = GenericPasswordQuery(service: testService)
             .returning(.reference)
 
-        let expectedEntity = GenericPasswordEntity()
+        var expectedEntity = GenericPasswordEntity()
         expectedEntity.service = testService
         try haversack.setSearchFirstMock(where: pwQuery, mockValue: expectedEntity)
 
@@ -74,7 +74,7 @@ final class EphemeralStrategyTests: XCTestCase {
         let pwQuery = GenericPasswordQuery(service: testService)
             .returning(.reference)
 
-        let expectedEntity = GenericPasswordEntity()
+        var expectedEntity = GenericPasswordEntity()
         expectedEntity.service = testService
         try haversack.setSearchFirstMock(where: pwQuery, mockValue: expectedEntity)
 
@@ -94,7 +94,7 @@ final class EphemeralStrategyTests: XCTestCase {
         let pwQuery = GenericPasswordQuery(service: testService)
             .returning(.reference)
 
-        let expectedEntity = GenericPasswordEntity()
+        var expectedEntity = GenericPasswordEntity()
         expectedEntity.service = testService
         try haversack.setSearchMock(where: pwQuery, mockValue: [expectedEntity])
 
@@ -110,7 +110,7 @@ final class EphemeralStrategyTests: XCTestCase {
 
     func testSetSaveMock() throws {
         // Given
-        let mockEntity = GenericPasswordEntity()
+        var mockEntity = GenericPasswordEntity()
         let testService = "unit.test"
         mockEntity.service = testService
 

@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: MIT
-// Copyright 2023, Jamf
+// Copyright 2026, Jamf
 
 import Foundation
 
 /// Represents any item that is storable in the keychain.
-public protocol KeychainStorable {
+public protocol KeychainStorable: Equatable, Sendable {
     /// This should be one of the SecFoo types, such as `SecCertificate` or `SecKeychainItem`
-    associatedtype SecurityFrameworkType
+    associatedtype SecurityFrameworkType: Sendable
 
     /// The keychain item reference, if it has been returned.
     var reference: SecurityFrameworkType? { get }

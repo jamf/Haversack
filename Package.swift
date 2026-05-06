@@ -1,6 +1,6 @@
-// swift-tools-version:5.9
+// swift-tools-version: 5.10
 // SPDX-License-Identifier: MIT
-// Copyright 2023, Jamf
+// Copyright 2026, Jamf
 
 import PackageDescription
 
@@ -10,7 +10,7 @@ let package = Package(
         .macOS(.v10_13),
         .iOS(.v12),
         .tvOS(.v12),
-		.visionOS(.v1),
+        .visionOS(.v1),
         .watchOS(.v5)
     ],
     products: [
@@ -24,14 +24,15 @@ let package = Package(
     ],
     targets: [
         .target(name: "Haversack",
-				dependencies: [
+                dependencies: [
                     .product(name: "OrderedCollections", package: "swift-collections")
-				],
-				resources: [.process("Resources/")]),
+                ],
+                resources: [.process("Resources/")]),
         .target(name: "HaversackCryptoKit", dependencies: ["Haversack"]),
         .target(name: "HaversackMock", dependencies: ["Haversack"]),
         .testTarget(name: "HaversackTests",
                     dependencies: ["HaversackMock"],
                     resources: [.copy("TestResources/")])
-    ]
+    ],
+    swiftLanguageVersions: [.v5, .version("6")]
 )

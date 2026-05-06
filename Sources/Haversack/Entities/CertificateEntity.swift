@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: MIT
-// Copyright 2023, Jamf
+// Copyright 2026, Jamf
 
 import Foundation
 import OrderedCollections
 
 /// Represents a certificate in the keychain.
-public class CertificateEntity: KeychainStorable, KeychainPortable {
+public struct CertificateEntity: KeychainStorable, KeychainPortable {
     /// Uses the `SecCertificate` type to interface with the Security framework.
     public typealias SecurityFrameworkType = SecCertificate
 
@@ -58,8 +58,8 @@ public class CertificateEntity: KeychainStorable, KeychainPortable {
     /// The `subjectData` parsed into a dictionary of OIDs to names; read only.
     public private(set) var subjectStrings: OrderedDictionary<String, String>?
 
-    public required init(from keychainItemRef: SecurityFrameworkType?, data: Data?,
-                         attributes: [String: Any]?, persistentRef: Data?) {
+    public init(from keychainItemRef: SecurityFrameworkType?, data: Data?,
+                attributes: [String: Any]?, persistentRef: Data?) {
         reference = keychainItemRef
         certificateData = data
         self.persistentRef = persistentRef
@@ -90,7 +90,7 @@ public class CertificateEntity: KeychainStorable, KeychainPortable {
 
     /// A simple initializer to use with an existing `SecCertificate` not in the keychain.
     /// - Parameter keychainItemRef: A `SecCertificate` that is not in a keychain.
-    public convenience init(from keychainItemRef: SecCertificate) {
+    public init(from keychainItemRef: SecCertificate) {
         self.init(from: keychainItemRef, data: nil, attributes: nil, persistentRef: nil)
     }
 

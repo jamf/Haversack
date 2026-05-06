@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// Copyright 2023, Jamf
+// Copyright 2026, Jamf
 
 import Foundation
 
@@ -9,7 +9,7 @@ import Foundation
 public struct KeyQuery: KeyBaseQuerying {
     public typealias Entity = KeyEntity
 
-    public var query: SecurityFrameworkQuery
+    @NSLocked public var query: SecurityFrameworkQuery
 
     /// Create a ``KeyQuery`` instance
     /// - Parameter label: The keychain label of the item.  Uses `kSecAttrLabel`.
@@ -109,7 +109,7 @@ public struct KeyQuery: KeyBaseQuerying {
 }
 
 /// Encapsulates the cryptographic key's class (public, private, or symmetric).
-public enum KeyClass {
+public enum KeyClass: Sendable {
     /// Represents a private key
     case `private`
     /// Represents a public key
@@ -117,18 +117,18 @@ public enum KeyClass {
     /// Represents a symmetric encryption/decryption key
     case symmetric
 
-    private static let translation: [CFString: KeyClass] = [
-        kSecAttrKeyClassPrivate: .private,
-        kSecAttrKeyClassPublic: .public,
-        kSecAttrKeyClassSymmetric: .symmetric
+    private static let translation: [String: KeyClass] = [
+        kSecAttrKeyClassPrivate as String: .private,
+        kSecAttrKeyClassPublic as String: .public,
+        kSecAttrKeyClassSymmetric as String: .symmetric
     ]
 
     static func make(from securityFrameworkValue: CFString) -> KeyClass? {
-        return translation[securityFrameworkValue]
+        return translation[securityFrameworkValue as String]
     }
 
     func securityFrameworkValue() -> CFString {
-        return Self.translation.first(where: { $1 == self })!.key
+        return Self.translation.first(where: { $1 == self })!.key as CFString
     }
 }
 

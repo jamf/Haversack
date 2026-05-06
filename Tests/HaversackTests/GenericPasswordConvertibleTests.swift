@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// Copyright 2023, Jamf
+// Copyright 2026, Jamf
 
 import XCTest
 import Haversack
@@ -53,12 +53,12 @@ final class GenericPasswordConvertibleTests: XCTestCase {
         let testInstance = MyTestType(aString: "unit test", anInt: 7)
 
         // when
-        let entity = GenericPasswordEntity(testInstance)
+        var entity = GenericPasswordEntity(testInstance)
         entity.service = "testing"
         let actual = try haversack.save(entity, itemSecurity: .standard, updateExisting: false)
 
         // then
-        XCTAssertIdentical(actual, entity)
+        XCTAssertEqual(actual, entity)
         let insertedData = try XCTUnwrap(strategy.mockData["classgenppdmnakusvcetestv_Data"] as? SecurityFrameworkQuery)
         XCTAssertEqual(insertedData.count, 4)
         XCTAssertEqual(insertedData[kSecClass as String] as? String, kSecClassGenericPassword as String)
@@ -68,7 +68,7 @@ final class GenericPasswordConvertibleTests: XCTestCase {
 
     func testMyTestTypeCanLoad() throws {
         // given
-        let expectedEntity = GenericPasswordEntity()
+        var expectedEntity = GenericPasswordEntity()
         expectedEntity.service = "test_load"
         expectedEntity.passwordData = #"{"aString":"yes we can","anInt":65}"#.data(using: .utf8)
         strategy.mockData["classgenpm_Limitm_Lir_Datasvcetest"] = expectedEntity
@@ -87,7 +87,7 @@ final class GenericPasswordConvertibleTests: XCTestCase {
 
     func testSecondTypeCanLoad() throws {
         // given
-        let expectedEntity = GenericPasswordEntity()
+        var expectedEntity = GenericPasswordEntity()
         expectedEntity.service = "test_load_2"
         expectedEntity.passwordData = "Hello".data(using: .utf8)
         strategy.mockData["classgenpm_Limitm_Lir_Datasvcetest"] = expectedEntity
@@ -104,7 +104,7 @@ final class GenericPasswordConvertibleTests: XCTestCase {
 
     func testAttemptedLoadOfWrongTypeThrows() throws {
         // given
-        let expectedEntity = GenericPasswordEntity()
+        var expectedEntity = GenericPasswordEntity()
         expectedEntity.service = "test_load"
         expectedEntity.passwordData = #"{"aString":"yes we can","anInt":65}"#.data(using: .utf8)
         strategy.mockData["classgenpm_Limitm_Lir_Datasvcetest"] = expectedEntity

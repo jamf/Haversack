@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT
-// Copyright 2023, Jamf
+// Copyright 2026, Jamf
 
 import Foundation
 
 /// Specify the security of the keychain item
-public struct ItemSecurity {
+public struct ItemSecurity: Sendable {
 
     /// The Haversack standard security for keychain items.
     ///
@@ -16,7 +16,7 @@ public struct ItemSecurity {
     ///
     /// You should not manipulate this directly.  Instead use the fluent methods such as ``containedIn(appGroup:)``
     /// and ``retrievable(when:)`` to build up the query.
-    public var query: SecurityFrameworkQuery
+    @NSLocked public var query: SecurityFrameworkQuery
 
     /// Construct an empty ``ItemSecurity``
     ///

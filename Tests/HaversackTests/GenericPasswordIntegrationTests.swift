@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// Copyright 2023, Jamf
+// Copyright 2026, Jamf
 
 import XCTest
 import Haversack
@@ -25,7 +25,7 @@ final class GenericPasswordIntegrationTests: XCTestCase {
     func testSaveOverExistingGenericPassword() throws {
         // given
         let customData = try XCTUnwrap("some test".data(using: .utf8))
-        let givenPassword = GenericPasswordEntity()
+        var givenPassword = GenericPasswordEntity()
         givenPassword.customData = customData
         givenPassword.passwordData = "top secret".data(using: .utf8)
         try haversack.save(givenPassword, itemSecurity: .standard, updateExisting: false)
@@ -35,7 +35,7 @@ final class GenericPasswordIntegrationTests: XCTestCase {
         }
 
         // when - we try to overwrite the password with a new value.
-        let newPassword = GenericPasswordEntity()
+        var newPassword = GenericPasswordEntity()
         newPassword.customData = customData
         newPassword.passwordData = "new secret".data(using: .utf8)
         try haversack.save(newPassword, itemSecurity: .standard, updateExisting: true)

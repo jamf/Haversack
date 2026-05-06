@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// Copyright 2023, Jamf
+// Copyright 2026, Jamf
 
 import XCTest
 import Haversack
@@ -25,7 +25,7 @@ final class SystemKeychainIntegrationTests: XCTestCase {
     func testSearchSystemKeychainMock() throws {
         // given
         let testService = "system.pw"
-        let expectedEntity = GenericPasswordEntity()
+        var expectedEntity = GenericPasswordEntity()
         expectedEntity.service = testService
         strategy.mockData["classgenpm_Limitm_Lim_SearchListr_Refsvcesyst"] = expectedEntity
 
@@ -42,7 +42,7 @@ final class SystemKeychainIntegrationTests: XCTestCase {
 
     func testSaveToSystemKeychainMock() throws {
         // given
-        let aPassword = GenericPasswordEntity()
+        var aPassword = GenericPasswordEntity()
         aPassword.service = "A password"
         aPassword.passwordData = "super secret".data(using: .utf8)
 

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// Copyright 2023, Jamf
+// Copyright 2026, Jamf
 
 import Foundation
 import Haversack
@@ -13,7 +13,7 @@ final class HaversackAsyncAwaitTests: XCTestCase {
 
     private let sampleDomain = "example.com"
     private let sampleEntity: InternetPasswordEntity = {
-        let entity = InternetPasswordEntity()
+        var entity = InternetPasswordEntity()
         entity.server = "example.com"
         return entity
     }()

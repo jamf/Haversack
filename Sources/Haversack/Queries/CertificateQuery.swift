@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// Copyright 2023, Jamf
+// Copyright 2026, Jamf
 
 import Foundation
 
@@ -7,7 +7,7 @@ import Foundation
 ///
 /// Successful searches produce ``CertificateEntity`` objects.
 public struct CertificateQuery {
-    public var query: SecurityFrameworkQuery
+    @NSLocked public var query: SecurityFrameworkQuery
 
     /// Create an ``CertificateQuery`` instance
     /// - Parameter label: The keychain label of the item.  Uses `kSecAttrLabel`.
@@ -50,7 +50,7 @@ extension CertificateQuery: CertificateBaseQuerying {
 /// Specifies the type of a certificate.
 ///
 /// Based on `CSSM_CERT_TYPE`.  Used with the `kSecAttrCertificateType` attribute of certificates.
-public enum CertificateType: Int32 {
+public enum CertificateType: Int32, Sendable {
     case unknown = 0
     case x509v1 = 0x01
     case x509v2 = 0x02
@@ -77,7 +77,7 @@ public enum CertificateType: Int32 {
 /// Specifies how a certificate is encoded.
 ///
 /// Based on `CSSM_CERT_ENCODING`.  Used with the `kSecAttrCertificateEncoding` attribute of certificates.
-public enum CertificateEncoding: Int32 {
+public enum CertificateEncoding: Int32, Sendable {
     case unknown = 0
     case custom = 0x01
     case ber = 0x02

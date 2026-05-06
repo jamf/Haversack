@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// Copyright 2023, Jamf
+// Copyright 2026, Jamf
 
 import Foundation
 
@@ -39,7 +39,7 @@ extension KeyBaseQuerying {
 }
 
 /// Encapsulates how cryptographic keys may be used.
-public struct KeyUsagePolicy: OptionSet {
+public struct KeyUsagePolicy: OptionSet, Sendable {
     public let rawValue: Int
 
     public init(rawValue: Int) {

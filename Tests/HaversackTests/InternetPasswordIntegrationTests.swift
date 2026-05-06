@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// Copyright 2023, Jamf
+// Copyright 2026, Jamf
 
 import XCTest
 import Haversack
@@ -31,7 +31,7 @@ final class InternetPasswordIntegrationTests: XCTestCase {
         try keychainFile.attemptToOpenOrCreate()
 
         // then
-        let newPassword = InternetPasswordEntity()
+        var newPassword = InternetPasswordEntity()
         newPassword.authenticationType = .HTTPDigest
         newPassword.account = "Chewbacca"
         newPassword.path = "falcon/holotable"
@@ -45,7 +45,7 @@ final class InternetPasswordIntegrationTests: XCTestCase {
 
         XCTAssertNotNil(savedPassword)
 
-        let genericPassword = GenericPasswordEntity()
+        var genericPassword = GenericPasswordEntity()
         genericPassword.account = "Mac Custom File tests"
         genericPassword.service = "General Han Solo"
         genericPassword.comment = "You know, sometimes I amaze myself"
@@ -106,7 +106,7 @@ final class InternetPasswordIntegrationTests: XCTestCase {
             .matching(account: "Chewbacca")
             .returning(.attributes)
         let queryFinished = expectation(description: "search finished")
-        var queryResult: InternetPasswordEntity?
+        nonisolated(unsafe) var queryResult: InternetPasswordEntity?
 
         // when
         haversack.first(where: pwQuery, completionQueue: .main) { (result) in
@@ -130,7 +130,7 @@ final class InternetPasswordIntegrationTests: XCTestCase {
 
     func testAddInternetPW() throws {
         // given
-        let newPassword = InternetPasswordEntity()
+        var newPassword = InternetPasswordEntity()
         newPassword.protocol = .HTTPS
         newPassword.server = "testing.example.com"
         newPassword.account = "mine too"
@@ -151,7 +151,7 @@ final class InternetPasswordIntegrationTests: XCTestCase {
 
     func testUpdateInternetPWExistingThrows() throws {
         // given
-        let newPassword = InternetPasswordEntity()
+        var newPassword = InternetPasswordEntity()
         newPassword.protocol = .HTTPS
         newPassword.server = "update.example.com"
         newPassword.account = "mine too"
@@ -166,7 +166,7 @@ final class InternetPasswordIntegrationTests: XCTestCase {
         }
 
         // when
-        let attemptToUpdate = InternetPasswordEntity()
+        var attemptToUpdate = InternetPasswordEntity()
         attemptToUpdate.protocol = .HTTPS
         attemptToUpdate.server = "update.example.com"
         attemptToUpdate.account = "mine too"
@@ -180,7 +180,7 @@ final class InternetPasswordIntegrationTests: XCTestCase {
 
     func testUpdateInternetPW() throws {
         // given
-        let newPassword = InternetPasswordEntity()
+        var newPassword = InternetPasswordEntity()
         newPassword.protocol = .HTTPS
         newPassword.server = "update.example.com"
         newPassword.account = "mine too"
@@ -194,7 +194,7 @@ final class InternetPasswordIntegrationTests: XCTestCase {
             try? haversack.delete(savedPassword)
         }
 
-        let attemptToUpdate = InternetPasswordEntity()
+        var attemptToUpdate = InternetPasswordEntity()
         attemptToUpdate.protocol = .HTTPS
         attemptToUpdate.server = "update.example.com"
         attemptToUpdate.account = "mine too"
@@ -214,7 +214,7 @@ final class InternetPasswordIntegrationTests: XCTestCase {
 
     func testInternetPWMatchLabelFirst() throws {
         // given
-        let newPassword = InternetPasswordEntity()
+        var newPassword = InternetPasswordEntity()
         newPassword.label = "The test label"
         newPassword.passwordData = "top secret".data(using: .utf8)
         // Use login keychain
@@ -238,7 +238,7 @@ final class InternetPasswordIntegrationTests: XCTestCase {
 
     func testInternetPWMatchLabelSearch() throws {
         // given
-        let newPassword = InternetPasswordEntity()
+        var newPassword = InternetPasswordEntity()
         newPassword.label = "The test label"
         newPassword.passwordData = "top secret".data(using: .utf8)
         // Use login keychain
@@ -263,7 +263,7 @@ final class InternetPasswordIntegrationTests: XCTestCase {
 
     func testInternetPWFirstForDataWorks() throws {
         // given
-        let newPassword = InternetPasswordEntity()
+        var newPassword = InternetPasswordEntity()
         newPassword.label = "The test label"
         newPassword.passwordData = "top secret".data(using: .utf8)
         // Use login keychain

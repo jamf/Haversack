@@ -1,12 +1,13 @@
 // SPDX-License-Identifier: MIT
-// Copyright 2023, Jamf
+// Copyright 2026, Jamf
 
 import Foundation
+@preconcurrency import Security
 
 /// Represents a connection to a keychain.
 ///
 /// Contains keychain search functionality and the ability to add/update/delete items in the keychain.
-public struct Haversack {
+public struct Haversack: Sendable {
     /// The configuration that the Haversack was created with.
     public let configuration: HaversackConfiguration
 
@@ -39,7 +40,7 @@ public struct Haversack {
     ///   - completion: A function/block to be called when the search operation is completed.
     ///   - result: The item or an error will be given to the completion handler.
     public func first<T: KeychainQuerying>(where query: T, completionQueue: OperationQueue? = nil,
-                                           completion: @escaping (_ result: Result<T.Entity, Error>) -> Void) {
+                                           completion: @escaping @Sendable (_ result: sending Result<T.Entity, Error>) -> Void) {
         configuration.serialQueue.async {
             let result: Result<T.Entity, Error>
             do {
@@ -76,7 +77,7 @@ public struct Haversack {
     ///   - completion: A function/block to be called when the search operation is completed.
     ///   - result: An array of items or an error will be given to the completion handler.
     public func search<T: KeychainQuerying>(where query: T, completionQueue: OperationQueue? = nil,
-                                            completion: @escaping (_ result: Result<[T.Entity], Error>) -> Void) {
+                                            completion: @escaping @Sendable (_ result: sending Result<[T.Entity], Error>) -> Void) {
         configuration.serialQueue.async {
             let result: Result<[T.Entity], Error>
             do {
@@ -121,7 +122,7 @@ public struct Haversack {
     ///   - result: The original `item` that was saved or an error will be given to the completion handler.
     public func save<T: KeychainStorable>(_ item: T, itemSecurity: ItemSecurity, updateExisting: Bool,
                                           completionQueue: OperationQueue? = nil,
-                                          completion: @escaping (_ result: Result<T, Error>) -> Void) {
+                                          completion: @escaping @Sendable (_ result: sending Result<T, Error>) -> Void) {
         configuration.serialQueue.async {
             let result: Result<T, Error>
 
@@ -167,7 +168,7 @@ public struct Haversack {
     ///   block; a `nil` represents no error.
     public func delete<T: KeychainStorable>(_ item: T, treatNotFoundAsSuccess: Bool = true,
                                             completionQueue: OperationQueue? = nil,
-                                            completion: @escaping (_ error: Error?) -> Void) {
+                                            completion: @escaping @Sendable (_ error: sending Error?) -> Void) {
         configuration.serialQueue.async {
             let result: Error?
 
@@ -212,7 +213,7 @@ public struct Haversack {
     ///   block; a `nil` represents no error.
     public func delete<T: KeychainQuerying>(where query: T, treatNotFoundAsSuccess: Bool = true,
                                             completionQueue: OperationQueue? = nil,
-                                            completion: @escaping (_ error: Error?) -> Void) {
+                                            completion: @escaping @Sendable (_ error: sending Error?) -> Void) {
         configuration.serialQueue.async {
             let result: Error?
 
@@ -296,7 +297,7 @@ public struct Haversack {
     ///   - result: A new `SecKey` or an error.
     public func generateKey(fromConfig config: KeyGenerationConfig, itemSecurity: ItemSecurity,
                             completionQueue: OperationQueue? = nil,
-                            completion: @escaping (_ result: Result<SecKey, Error>) -> Void) {
+                            completion: @escaping @Sendable (_ result: sending Result<SecKey, Error>) -> Void) {
         configuration.serialQueue.async {
             let result: Result<SecKey, Error>
 
@@ -395,8 +396,8 @@ public struct Haversack {
     }
 #endif
 
-    private func call<T>(completionHandler: @escaping (_ result: Result<T, Error>) -> Void,
-                         onQueue queue: OperationQueue?, with result: Result<T, Error>) {
+    private func call<T: Sendable>(completionHandler: @escaping @Sendable (_ result: sending Result<T, Error>) -> Void,
+                                   onQueue queue: OperationQueue?, with result: Result<T, Error>) {
         if let actualQueue = queue {
             actualQueue.addOperation {
                 completionHandler(result)

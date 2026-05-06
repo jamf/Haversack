@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// Copyright 2023, Jamf
+// Copyright 2026, Jamf
 
 import Foundation
 import os.log
@@ -17,7 +17,7 @@ import Security
 /// All item searches are logged at the `.info` level.  Saving and deleting items are logged at
 /// the `.default` level.  All errors are logged at the `.error` level with additional query details logged at
 /// the `.debug` level and marked as private.
-open class HaversackStrategy {
+open class HaversackStrategy: @unchecked Sendable {
     /// Create a new strategy object
     public init() { }
 
@@ -243,7 +243,7 @@ open class HaversackStrategy {
 
         var outItems: CFArray?
         let status = SecItemImport(items as CFData,
-                                   configuration.fileNameOrExtension,
+                                   configuration.fileNameOrExtension as CFString?,
                                    &inputFormat,
                                    &itemType,
                                    configuration.secItemImportFlags,
@@ -272,7 +272,7 @@ open class HaversackStrategy {
 }
 
 /// A simple type that looks into a keychain query to see what kind of data it is asking for.
-private struct QueryContents {
+private struct QueryContents: Sendable {
     let hasRef: Bool
     let hasData: Bool
     let hasPersistentRef: Bool

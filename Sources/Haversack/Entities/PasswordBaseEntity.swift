@@ -65,8 +65,6 @@ public protocol PasswordBaseEntity: KeychainStorable {
     /// - Note: Uses `kSecValueData`.
     var passwordData: Data? { get set }
 
-    // NOTE: This function has a cyclomatic complexity of 11 instead of the allowed 10.
-    // swiftlint:disable:next cyclomatic_complexity
     func entityQuery(includeSecureData: Bool) -> SecurityFrameworkQuery
 }
 
@@ -76,7 +74,8 @@ extension PasswordBaseEntity {
         return passwordData == nil
     }
 
-    // swiftlint:disable:next identifier_name
+    // NOTE: This function has a cyclomatic complexity of 11 instead of the allowed 10.
+    // swiftlint:disable:next identifier_name cyclomatic_complexity
     func _entityQuery(includeSecureData: Bool) -> SecurityFrameworkQuery {
         var newQuery = SecurityFrameworkQuery()
 

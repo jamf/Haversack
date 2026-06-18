@@ -6,12 +6,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
-## [1.2.1] - 2026-06-17
+## [2.0.0] - 2026-06-18
 ### Added
 - Added retroactive conformance to `@unchecked Sendable` for `SecCertificate`, `SecIdentity`, `SecKey`, and `SecKeychainItem`. This is safe because Apple eventually adds this same conformance beginning in Xcode 26.
-
-## [1.2.0] - 2026-03-18
-### Added
 - Added convenience methods for accessing mock data values on the `HaversackEphemeralStrategy`
 - Added `Sendable` conformance to all public types, protocols, and enums.
 

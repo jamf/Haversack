@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added retroactive conformance to `@unchecked Sendable` for `SecCertificate`, `SecIdentity`, `SecKey`, and `SecKeychainItem`. This is safe because Apple eventually adds this same conformance beginning in Xcode 26.
 - Added convenience methods for accessing mock data values on the `HaversackEphemeralStrategy`
 - Added `Sendable` conformance to all public types, protocols, and enums.
+- Added support for visionOS.
 
 ### Changed
 - Updated to build using Swift 6.
@@ -22,9 +23,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Internal `CFString` dictionary keys migrated to `String` for `Sendable` compatibility.
 - Completion handlers and closure properties marked `@Sendable`.
 
-## [1.2.0-prerelease] - 2024-02-11
-### Added
-- Added support for visionOS.
+## [1.2.2] - 2026-06-18
+### Changed
+- 1.2.2 is equivalent to 1.1.1 due to rollback in versioning. 1.2.0 and 1.2.1 have been squashed to become version 2.0.0.
 
 ## [1.1.1] - 2024-01-05
 ### Changed

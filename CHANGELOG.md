@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## [2.0.1] - 2026-10-28
+### Fixed
+- `save(_:itemSecurity:updateExisting:)` and its async variants no longer report success when `updateExisting` is `true` and the keychain fails with an error other than `errSecDuplicateItem` (for example `errSecInteractionNotAllowed` when the keychain is locked). These errors are now thrown, so callers that previously saw a "successful" save may now receive a `HaversackError.keychainError`. ([#17](https://github.com/jamf/Haversack/issues/17))
+
 ## [2.0.0] - 2026-06-18
 ### Added
 - Added retroactive conformance to `@unchecked Sendable` for `SecCertificate`, `SecIdentity`, `SecKey`, and `SecKeychainItem`. This is safe because Apple eventually adds this same conformance beginning in Xcode 26.

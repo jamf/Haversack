@@ -26,6 +26,14 @@ Haversack encapsulates the `kSecAttrAccessible...` values for keychain items int
 ``RetrievabilityLevel`` enum. The name was chosen to express when items can be retrieved for use,
 and to stay well away from the accessibility APIs that are used for user experience accommodations.
 
+#### Updating Existing Items
+
+When `updateExisting` is `true` and the keychain reports that the item already exists
+(`errSecDuplicateItem`), Haversack deletes the existing item and saves the new one in its place.
+If the entity has nothing beyond its item class and reference or persistent reference, the
+existing item is left in place and the save succeeds. Any other keychain error, such as
+`errSecInteractionNotAllowed` when the keychain is locked, is thrown as a ``HaversackError``.
+
 ### Saving Entities
 
 #### Internet and generic passwords

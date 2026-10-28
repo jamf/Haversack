@@ -87,6 +87,23 @@ final class HaversackAsyncAwaitTests: XCTestCase {
         XCTAssertEqual(actual.server, self.sampleDomain)
     }
 
+    func testSaveAsyncUpdateExistingRethrowsNonDuplicateError() async throws {
+        // Given
+        let failingStrategy = FailingSaveStrategy(saveErrors: [HaversackError.keychainError(errSecInteractionNotAllowed)])
+        let failingHaversack = Haversack(configuration: HaversackConfiguration(strategy: failingStrategy))
+
+        // When
+        var err: Error? = nil
+        do {
+            try await failingHaversack.save(sampleEntity, itemSecurity: .standard, updateExisting: true)
+        } catch {
+            err = error
+        }
+
+        // Then
+        XCTAssertEqual(err as? HaversackError, .keychainError(errSecInteractionNotAllowed))
+    }
+
     func testDeleteQueryAsyncNoData() async throws {
         // Given
         let pwQuery = InternetPasswordQuery(server: sampleDomain)

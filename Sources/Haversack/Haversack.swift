@@ -101,6 +101,7 @@ public struct Haversack: Sendable {
     ///   - itemSecurity: Specify the security posture of the keychain item
     ///   - updateExisting: If the item already exists in the keychain set this to `true` to update that item.
     ///     Otherwise an ``HaversackError/keychainError(_:)`` with `errSecDuplicateItem` is thrown.
+    ///     Any other error from the keychain is thrown regardless of this setting.
     /// - Throws: A ``HaversackError`` if the query returns no items or any errors occur.
     /// - Returns: The original `item`.
     @discardableResult
@@ -116,6 +117,7 @@ public struct Haversack: Sendable {
     ///   - itemSecurity: Specify the security posture of the keychain item
     ///   - updateExisting: If the item already exists in the keychain set this to `true` to update that item.
     ///     Otherwise an ``HaversackError/keychainError(_:)`` with `errSecDuplicateItem` is thrown.
+    ///     Any other error from the keychain is thrown regardless of this setting.
     ///   - completionQueue: The `completion` function will be called on this queue if given, or
     ///   the configuration's strategy's `serialQueue` if this is `nil`.
     ///   - completion: A function/block to be called when the save operation is completed.
@@ -410,14 +412,20 @@ public struct Haversack: Sendable {
     // MARK: - Unsynchronized
 
     /// Save the entity and attempt to delete/save if needed on `errSecDuplicateItem` errors.
+    ///
+    /// All other errors are rethrown.
     private func unsynchronizedSave<T: KeychainStorable>(_ saveQuery: SecurityFrameworkQuery, deleteIfNeeded item: T) throws {
         do {
             try configuration.strategy.save(saveQuery)
-        } catch HaversackError.keychainError(let status) {
-            if status == errSecDuplicateItem && moreThanBaseData(in: item.entityQuery(includeSecureData: false)) {
-                try unsynchronizedDelete(item, treatNotFoundAsSuccess: false)
-                try configuration.strategy.save(saveQuery)
+        } catch HaversackError.keychainError(errSecDuplicateItem) {
+            // With only base data there is nothing to update; the item already in the keychain is
+            // equivalent to the one being saved, so treat the save as successful.
+            guard moreThanBaseData(in: item.entityQuery(includeSecureData: false)) else {
+                return
             }
+
+            try unsynchronizedDelete(item, treatNotFoundAsSuccess: false)
+            try configuration.strategy.save(saveQuery)
         }
     }
 

@@ -193,6 +193,84 @@ final class HaversackTests: XCTestCase {
         wait(for: [queryFinished], timeout: 1)
     }
 
+    func testSaveUpdateExistingRethrowsNonDuplicateError() throws {
+        // given
+        let failingStrategy = FailingSaveStrategy(saveErrors: [HaversackError.keychainError(errSecInteractionNotAllowed)])
+        let failingHaversack = Haversack(configuration: HaversackConfiguration(strategy: failingStrategy))
+
+        // when
+        XCTAssertThrowsError(try failingHaversack.save(sampleEntity, itemSecurity: .standard, updateExisting: true)) { error in
+            // then
+            XCTAssertEqual(error as? HaversackError, .keychainError(errSecInteractionNotAllowed))
+        }
+        XCTAssertEqual(failingStrategy.saveCallCount, 1)
+    }
+
+    func testSaveUpdateExistingAsyncRethrowsNonDuplicateError() throws {
+        // given
+        let failingStrategy = FailingSaveStrategy(saveErrors: [HaversackError.keychainError(errSecAuthFailed)])
+        let failingHaversack = Haversack(configuration: HaversackConfiguration(strategy: failingStrategy))
+        let saveFinished = expectation(description: "save finished")
+
+        // when
+        failingHaversack.save(sampleEntity, itemSecurity: .standard, updateExisting: true) { (result) in
+            // then
+            if case .success = result {
+                XCTFail("Should have had a .failure from save() but it succeeded")
+            } else if case .failure(let error) = result {
+                XCTAssertEqual(error as? HaversackError, .keychainError(errSecAuthFailed))
+            }
+            saveFinished.fulfill()
+        }
+        wait(for: [saveFinished], timeout: 1)
+    }
+
+    func testSaveUpdateExistingReplacesDuplicate() throws {
+        // given
+        let failingStrategy = FailingSaveStrategy(saveErrors: [HaversackError.keychainError(errSecDuplicateItem)])
+        let failingHaversack = Haversack(configuration: HaversackConfiguration(strategy: failingStrategy))
+        try failingHaversack.setDeleteMock(item: sampleEntity, mockValue: "existing item")
+
+        // when
+        try failingHaversack.save(sampleEntity, itemSecurity: .standard, updateExisting: true)
+
+        // then
+        XCTAssertNil(try failingHaversack.getDeleteMock(item: sampleEntity), "The existing item should have been deleted")
+        let saved = try failingHaversack.getSaveMock(item: sampleEntity)
+        XCTAssertNotNil(saved as? SecurityFrameworkQuery, "The new item should have been saved")
+        XCTAssertEqual(failingStrategy.saveCallCount, 2)
+    }
+
+    func testSaveUpdateExistingRethrowsErrorFromReplacementSave() throws {
+        // given
+        let failingStrategy = FailingSaveStrategy(saveErrors: [
+            HaversackError.keychainError(errSecDuplicateItem),
+            HaversackError.keychainError(errSecInteractionNotAllowed)
+        ])
+        let failingHaversack = Haversack(configuration: HaversackConfiguration(strategy: failingStrategy))
+        try failingHaversack.setDeleteMock(item: sampleEntity, mockValue: "existing item")
+
+        // when
+        XCTAssertThrowsError(try failingHaversack.save(sampleEntity, itemSecurity: .standard, updateExisting: true)) { error in
+            // then
+            XCTAssertEqual(error as? HaversackError, .keychainError(errSecInteractionNotAllowed))
+        }
+        XCTAssertEqual(failingStrategy.saveCallCount, 2)
+    }
+
+    func testSaveUpdateExistingDuplicateWithOnlyBaseDataSucceedsWithoutReplacing() throws {
+        // given
+        let cert = CertificateEntity(from: nil, data: nil, attributes: nil, persistentRef: nil)
+        try haversack.setSaveMock(item: cert, mockValue: "existing item")
+
+        // when
+        try haversack.save(cert, itemSecurity: .standard, updateExisting: true)
+
+        // then
+        let saved = try haversack.getSaveMock(item: cert)
+        XCTAssertEqual(saved as? String, "existing item", "The existing item should not have been replaced")
+    }
+
     func testDeleteQueryNoData() throws {
         // given
         let pwQuery = InternetPasswordQuery(server: sampleDomain)
